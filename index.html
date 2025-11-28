@@ -2578,14 +2578,74 @@
                 <!-- Add Expense Module -->
                 <div class="module-content" id="module-expenses-add">
                     <div class="module-header">
-                        <h1>Add Expense</h1>
-                        <p>Record a new expense</p>
+                        <div>
+                            <h1>Add Expense</h1>
+                            <p>Record a new expense</p>
+                        </div>
+                        <div class="module-header-actions">
+                            <button class="btn-module-action" onclick="showModule('module-expenses-manage')" style="background-color: #3b82f6; color: white;">
+                                <i class="fas fa-list"></i> View Expenses
+                            </button>
+                        </div>
                     </div>
                     <div class="module-body">
-                        <div class="placeholder-content">
-                            <i class="fas fa-plus-circle"></i>
-                            <h2>Add Expense Module</h2>
-                            <p>This module is ready for future implementation.</p>
+                        <div class="expense-form-container">
+                            <form id="addExpenseForm" class="expense-form">
+                                <div class="form-section">
+                                    <h2 class="section-title"><i class="fas fa-receipt"></i> Expense Details</h2>
+                                    <div class="form-grid">
+                                        <div class="form-field">
+                                            <label for="expenseCategory">Category *</label>
+                                            <select id="expenseCategory" required>
+                                                <option value="">Select Category</option>
+                                                <option value="utilities">Utilities</option>
+                                                <option value="rent">Rent</option>
+                                                <option value="salaries">Salaries</option>
+                                                <option value="supplies">Supplies</option>
+                                                <option value="maintenance">Maintenance</option>
+                                                <option value="transport">Transport</option>
+                                                <option value="marketing">Marketing</option>
+                                                <option value="insurance">Insurance</option>
+                                                <option value="taxes">Taxes</option>
+                                                <option value="other">Other</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-field">
+                                            <label for="expenseAmount">Amount (Ksh) *</label>
+                                            <input type="number" id="expenseAmount" placeholder="0.00" min="0" step="0.01" required>
+                                        </div>
+                                        <div class="form-field">
+                                            <label for="expenseDate">Date *</label>
+                                            <input type="date" id="expenseDate" required>
+                                        </div>
+                                        <div class="form-field">
+                                            <label for="expensePaymentMethod">Payment Method</label>
+                                            <select id="expensePaymentMethod">
+                                                <option value="cash">Cash</option>
+                                                <option value="mpesa">M-Pesa</option>
+                                                <option value="bank">Bank Transfer</option>
+                                                <option value="cheque">Cheque</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-field full-width">
+                                            <label for="expenseDescription">Description *</label>
+                                            <input type="text" id="expenseDescription" placeholder="Brief description of the expense" required>
+                                        </div>
+                                        <div class="form-field full-width">
+                                            <label for="expenseNotes">Additional Notes</label>
+                                            <textarea id="expenseNotes" rows="3" placeholder="Any additional details or reference numbers..."></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-actions">
+                                    <button type="submit" class="btn-primary" style="background-color: #10b981; color: white; border: none;">
+                                        <i class="fas fa-save"></i> Save Expense
+                                    </button>
+                                    <button type="reset" class="btn-secondary" style="background-color: #ef4444; color: white; border: none;">
+                                        <i class="fas fa-times"></i> Clear Form
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -2593,14 +2653,225 @@
                 <!-- Manage Expenses Module -->
                 <div class="module-content" id="module-expenses-manage">
                     <div class="module-header">
-                        <h1>Manage Expenses</h1>
-                        <p>View and manage all expenses</p>
+                        <div>
+                            <h1>Manage Expenses</h1>
+                            <p>View and manage all expenses</p>
+                        </div>
+                        <div class="module-header-actions">
+                            <button class="btn-module-action" onclick="exportExpensesPDF()" style="background-color: #ef4444; color: white;">
+                                <i class="fas fa-file-pdf"></i> Export PDF
+                            </button>
+                            <button class="btn-module-action" onclick="showModule('module-expenses-add')" style="background-color: #10b981; color: white;">
+                                <i class="fas fa-plus"></i> Add Expense
+                            </button>
+                        </div>
                     </div>
                     <div class="module-body">
-                        <div class="placeholder-content">
-                            <i class="fas fa-file-invoice-dollar"></i>
-                            <h2>Manage Expenses Module</h2>
-                            <p>This module is ready for future implementation.</p>
+                        <!-- Stats Cards -->
+                        <div class="me-stats">
+                            <div class="me-stat-card">
+                                <div class="me-stat-icon" style="background-color: rgba(239, 68, 68, 0.1); color: #ef4444;">
+                                    <i class="fas fa-money-bill-wave"></i>
+                                </div>
+                                <div class="me-stat-info">
+                                    <span class="me-stat-value" id="meTotalExpenses">Ksh 0</span>
+                                    <span class="me-stat-label">Total Expenses</span>
+                                </div>
+                            </div>
+                            <div class="me-stat-card">
+                                <div class="me-stat-icon" style="background-color: rgba(59, 130, 246, 0.1); color: #3b82f6;">
+                                    <i class="fas fa-calendar-day"></i>
+                                </div>
+                                <div class="me-stat-info">
+                                    <span class="me-stat-value" id="meTodayExpenses">Ksh 0</span>
+                                    <span class="me-stat-label">Today's Expenses</span>
+                                </div>
+                            </div>
+                            <div class="me-stat-card">
+                                <div class="me-stat-icon" style="background-color: rgba(16, 185, 129, 0.1); color: #10b981;">
+                                    <i class="fas fa-receipt"></i>
+                                </div>
+                                <div class="me-stat-info">
+                                    <span class="me-stat-value" id="meExpenseCount">0</span>
+                                    <span class="me-stat-label">Total Records</span>
+                                </div>
+                            </div>
+                            <div class="me-stat-card">
+                                <div class="me-stat-icon" style="background-color: rgba(139, 92, 246, 0.1); color: #8b5cf6;">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
+                                <div class="me-stat-info">
+                                    <span class="me-stat-value" id="meMonthExpenses">Ksh 0</span>
+                                    <span class="me-stat-label">This Month</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Filters and Search -->
+                        <div class="me-filters">
+                            <div class="me-search-box">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="meSearchInput" placeholder="Search expenses...">
+                            </div>
+                            <div class="me-filter-group">
+                                <select id="meCategoryFilter">
+                                    <option value="">All Categories</option>
+                                    <option value="utilities">Utilities</option>
+                                    <option value="rent">Rent</option>
+                                    <option value="salaries">Salaries</option>
+                                    <option value="supplies">Supplies</option>
+                                    <option value="maintenance">Maintenance</option>
+                                    <option value="transport">Transport</option>
+                                    <option value="marketing">Marketing</option>
+                                    <option value="insurance">Insurance</option>
+                                    <option value="taxes">Taxes</option>
+                                    <option value="other">Other</option>
+                                </select>
+                                <select id="mePaymentFilter">
+                                    <option value="">All Payment Methods</option>
+                                    <option value="cash">Cash</option>
+                                    <option value="mpesa">M-Pesa</option>
+                                    <option value="bank">Bank Transfer</option>
+                                    <option value="cheque">Cheque</option>
+                                </select>
+                                <select id="meStatusFilter">
+                                    <option value="">All Status</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="approved">Approved</option>
+                                    <option value="cancelled">Cancelled</option>
+                                </select>
+                                <input type="date" id="meDateFilter" title="Filter by date">
+                            </div>
+                        </div>
+
+                        <!-- Expenses Table -->
+                        <div class="me-table-container">
+                            <table class="me-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Category</th>
+                                        <th>Description</th>
+                                        <th>Payment Method</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="meTableBody">
+                                    <tr>
+                                        <td colspan="7" class="me-loading">
+                                            <i class="fas fa-spinner fa-spin"></i> Loading expenses...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        <div class="me-pagination">
+                            <div class="me-pagination-info">
+                                Showing <span id="meShowingStart">0</span> - <span id="meShowingEnd">0</span> of <span id="meTotalRecords">0</span> expenses
+                            </div>
+                            <div class="me-pagination-controls">
+                                <button id="mePrevBtn" class="me-page-btn" disabled>
+                                    <i class="fas fa-chevron-left"></i> Previous
+                                </button>
+                                <span class="me-page-number">Page <span id="meCurrentPage">1</span></span>
+                                <button id="meNextBtn" class="me-page-btn">
+                                    Next <i class="fas fa-chevron-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- View Expense Modal -->
+                    <div class="me-modal-overlay" id="meViewModal">
+                        <div class="me-modal">
+                            <div class="me-modal-header">
+                                <h2><i class="fas fa-receipt"></i> Expense Details</h2>
+                                <button class="me-modal-close" onclick="closeViewExpenseModal()">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <div class="me-modal-body">
+                                <div class="me-view-grid" id="meViewContent">
+                                    <!-- Content populated by JS -->
+                                </div>
+                            </div>
+                            <div class="me-modal-footer">
+                                <button class="me-modal-btn me-btn-secondary" onclick="closeViewExpenseModal()">
+                                    <i class="fas fa-times"></i> Close
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Edit Expense Modal -->
+                    <div class="me-modal-overlay" id="meEditModal">
+                        <div class="me-modal">
+                            <div class="me-modal-header">
+                                <h2><i class="fas fa-edit"></i> Edit Expense</h2>
+                                <button class="me-modal-close" onclick="closeEditExpenseModal()">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <div class="me-modal-body">
+                                <form id="meEditForm" class="me-edit-form">
+                                    <input type="hidden" id="meEditId">
+                                    <div class="me-edit-grid">
+                                        <div class="me-form-field">
+                                            <label for="meEditCategory">Category *</label>
+                                            <select id="meEditCategory" required>
+                                                <option value="">Select Category</option>
+                                                <option value="utilities">Utilities</option>
+                                                <option value="rent">Rent</option>
+                                                <option value="salaries">Salaries</option>
+                                                <option value="supplies">Supplies</option>
+                                                <option value="maintenance">Maintenance</option>
+                                                <option value="transport">Transport</option>
+                                                <option value="marketing">Marketing</option>
+                                                <option value="insurance">Insurance</option>
+                                                <option value="taxes">Taxes</option>
+                                                <option value="other">Other</option>
+                                            </select>
+                                        </div>
+                                        <div class="me-form-field">
+                                            <label for="meEditAmount">Amount (Ksh) *</label>
+                                            <input type="number" id="meEditAmount" min="0" step="0.01" required>
+                                        </div>
+                                        <div class="me-form-field">
+                                            <label for="meEditDate">Date *</label>
+                                            <input type="date" id="meEditDate" required>
+                                        </div>
+                                        <div class="me-form-field">
+                                            <label for="meEditPayment">Payment Method</label>
+                                            <select id="meEditPayment">
+                                                <option value="cash">Cash</option>
+                                                <option value="mpesa">M-Pesa</option>
+                                                <option value="bank">Bank Transfer</option>
+                                                <option value="cheque">Cheque</option>
+                                            </select>
+                                        </div>
+                                        <div class="me-form-field full-width">
+                                            <label for="meEditDescription">Description *</label>
+                                            <input type="text" id="meEditDescription" required>
+                                        </div>
+                                        <div class="me-form-field full-width">
+                                            <label for="meEditNotes">Notes</label>
+                                            <textarea id="meEditNotes" rows="3"></textarea>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="me-modal-footer">
+                                <button class="me-modal-btn me-btn-secondary" onclick="closeEditExpenseModal()">
+                                    <i class="fas fa-times"></i> Cancel
+                                </button>
+                                <button class="me-modal-btn me-btn-primary" onclick="saveEditedExpense()">
+                                    <i class="fas fa-save"></i> Save Changes
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -3145,6 +3416,8 @@
     <script type="module" src="js/manage-orders.js"></script>
     <script type="module" src="js/customer.js"></script>
     <script type="module" src="js/manage-customers.js"></script>
+    <script type="module" src="js/expense.js"></script>
+    <script type="module" src="js/manage-expenses.js"></script>
     <script src="js/admin-panel.js"></script>
     <script src="js/app.js"></script>
 </body>

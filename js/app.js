@@ -353,5 +353,38 @@
 
     window.PharmaFlow = api;
 
+    // Global showModule function for direct module navigation
+    window.showModule = function(moduleId) {
+        // Hide all module contents
+        selectors.moduleContents.forEach(content => content.classList.remove('active'));
+        
+        // Show the target module
+        const targetModule = document.getElementById(moduleId);
+        if (targetModule) {
+            targetModule.classList.add('active');
+            
+            // Update sidebar active states
+            selectors.navLinks.forEach(link => link.classList.remove('active'));
+            selectors.submenuLinks.forEach(link => link.classList.remove('active'));
+            
+            // Try to find and activate the corresponding sidebar link
+            const moduleName = moduleId.replace('module-', '');
+            const matchingLink = document.querySelector(`.nav-link[data-module="${moduleName}"]`) ||
+                document.querySelector(`.submenu-link[data-module="${moduleName}"]`);
+            if (matchingLink) {
+                matchingLink.classList.add('active');
+                // Open parent submenu if exists
+                const parentItem = matchingLink.closest('.nav-item.has-submenu');
+                if (parentItem) {
+                    parentItem.classList.add('open');
+                }
+            }
+            
+            persist('activeModule', moduleName);
+        } else {
+            console.warn(`PharmaFlow: module "${moduleId}" does not exist.`);
+        }
+    };
+
     document.addEventListener('DOMContentLoaded', init);
 })(window, document);
