@@ -57,20 +57,11 @@
                             <span class="nav-text">All Sales</span>
                         </a>
                     </li>
-                    <li class="nav-item has-submenu">
-                        <a href="#" class="nav-link" data-module="prescription">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-module="prescription-generate">
                             <i class="fas fa-prescription"></i>
                             <span class="nav-text">Prescription</span>
-                            <i class="fas fa-chevron-down submenu-arrow"></i>
                         </a>
-                        <ul class="submenu">
-                            <li class="submenu-item">
-                                <a href="#" class="submenu-link" data-module="prescription-generate">
-                                    <i class="fas fa-file-medical"></i>
-                                    <span>Generate Prescription</span>
-                                </a>
-                            </li>
-                        </ul>
                     </li>
                     <li class="nav-item has-submenu">
                         <a href="#" class="nav-link" data-module="inventory">
@@ -1011,32 +1002,286 @@
                     </div>
                 </div>
 
-                <!-- Prescription Module -->
-                <div class="module-content" id="module-prescription">
-                    <div class="module-header">
-                        <h1>Prescription</h1>
-                        <p>Manage prescriptions</p>
-                    </div>
-                    <div class="module-body">
-                        <div class="placeholder-content">
-                            <i class="fas fa-prescription"></i>
-                            <h2>Prescription Module</h2>
-                            <p>This module is ready for future implementation.</p>
+                <!-- Generate Prescription Module -->
+                <div class="module-content" id="module-prescription-generate">
+                    <div class="prescription-container">
+                        <!-- Left Section: Prescription Form & Medications -->
+                        <div class="prescription-left">
+                            <!-- Patient & Doctor Information -->
+                            <div class="prescription-info-section">
+                                <h3><i class="fas fa-user-md"></i> Prescription Information</h3>
+                                <div class="prescription-form-grid">
+                                    <div class="form-group">
+                                        <label for="rxPatientName">Patient Name *</label>
+                                        <input type="text" id="rxPatientName" placeholder="Enter patient name" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="rxPatientAge">Age</label>
+                                        <input type="number" id="rxPatientAge" placeholder="Patient age">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="rxPatientGender">Gender</label>
+                                        <select id="rxPatientGender">
+                                            <option value="">Select</option>
+                                            <option value="Male">Male</option>
+                                            <option value="Female">Female</option>
+                                            <option value="Other">Other</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="rxPatientPhone">Phone Number</label>
+                                        <input type="tel" id="rxPatientPhone" placeholder="Patient phone">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="rxDoctorName">Doctor Name *</label>
+                                        <input type="text" id="rxDoctorName" placeholder="Prescribing doctor" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="rxDoctorLicense">License Number</label>
+                                        <input type="text" id="rxDoctorLicense" placeholder="Doctor license">
+                                    </div>
+                                    <div class="form-group full-width">
+                                        <label for="rxDiagnosis">Diagnosis</label>
+                                        <input type="text" id="rxDiagnosis" placeholder="Patient diagnosis">
+                                    </div>
+                                    <div class="form-group full-width">
+                                        <label for="rxNotes">Notes/Instructions</label>
+                                        <textarea id="rxNotes" rows="2" placeholder="Additional notes or instructions"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Medication Search & Add Section -->
+                            <div class="rx-medication-section">
+                                <div class="rx-section-header">
+                                    <div class="rx-section-title">
+                                        <i class="fas fa-pills"></i>
+                                        <h3>Add Medications</h3>
+                                    </div>
+                                    <button class="rx-btn-add-manual" id="rxManualAddBtn">
+                                        <i class="fas fa-plus-circle"></i>
+                                        <span>Add Manually</span>
+                                    </button>
+                                </div>
+
+                                <div class="rx-search-container">
+                                    <div class="rx-search-wrapper">
+                                        <i class="fas fa-search rx-search-icon"></i>
+                                        <input 
+                                            type="text" 
+                                            id="rxSearchInput" 
+                                            class="rx-search-input" 
+                                            placeholder="Search medications from inventory by name, category, or dosage..." 
+                                            autocomplete="off"
+                                        >
+                                        <button class="rx-search-clear" id="rxSearchClear" style="display: none;">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                    <!-- Search Results Dropdown -->
+                                    <div class="rx-search-results" id="rxSearchResults">
+                                        <!-- Populated dynamically -->
+                                    </div>
+                            </div>
+                        </div>                            <!-- Medications List Section -->
+                            <div class="rx-meds-list-section">
+                                <div class="rx-meds-header">
+                                    <div class="rx-meds-title">
+                                        <i class="fas fa-list-ul"></i>
+                                        <h3>Prescribed Medications</h3>
+                                        <span class="rx-meds-count" id="rxMedsCount">0</span>
+                                    </div>
+                                    <button class="rx-btn-clear-all" id="rxClearMeds">
+                                        <i class="fas fa-trash-alt"></i>
+                                        <span>Clear All</span>
+                                    </button>
+                                </div>
+
+                                <!-- Empty State -->
+                                <div class="rx-meds-empty" id="rxMedsEmpty">
+                                    <div class="rx-empty-icon">
+                                        <i class="fas fa-prescription-bottle-alt"></i>
+                                    </div>
+                                    <h4>No Medications Added</h4>
+                                    <p>Search from inventory or add medications manually to build the prescription</p>
+                                    <button class="rx-empty-btn" id="rxEmptyAddBtn">
+                                        <i class="fas fa-plus"></i> Add First Medication
+                                    </button>
+                                </div>
+
+                                <!-- Medications Table -->
+                                <div class="rx-meds-table-container" style="display: none;">
+                                    <div class="rx-table-responsive">
+                                        <table class="rx-meds-table">
+                                            <thead>
+                                                <tr>
+                                                    <th class="rx-th-med">Medication</th>
+                                                    <th class="rx-th-dosage">Dosage</th>
+                                                    <th class="rx-th-frequency">Frequency</th>
+                                                    <th class="rx-th-duration">Duration</th>
+                                                    <th class="rx-th-qty">Qty</th>
+                                                    <th class="rx-th-actions"></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="rxMedsBody">
+                                                <!-- Medications populated dynamically -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Section: Preview & Actions -->
+                        <div class="prescription-right">
+                            <div class="prescription-preview-section">
+                                <h3><i class="fas fa-file-medical"></i> Prescription Preview</h3>
+                                <div class="prescription-preview" id="rxPreview">
+                                    <!-- Preview content -->
+                                    <div class="rx-preview-header">
+                                        <div class="rx-preview-logo">
+                                            <i class="fas fa-hospital"></i>
+                                            <h2>PharmaFlow Clinic</h2>
+                                        </div>
+                                        <div class="rx-preview-date">
+                                            Date: <span id="rxPreviewDate">--</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="rx-preview-title">
+                                        <h3>℞ PRESCRIPTION</h3>
+                                    </div>
+
+                                    <div class="rx-preview-patient">
+                                        <div class="rx-preview-row">
+                                            <strong>Patient:</strong> <span id="rxPreviewPatient">--</span>
+                                        </div>
+                                        <div class="rx-preview-row">
+                                            <strong>Age/Gender:</strong> <span id="rxPreviewAge">--</span>
+                                        </div>
+                                        <div class="rx-preview-row">
+                                            <strong>Diagnosis:</strong> <span id="rxPreviewDiagnosis">--</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="rx-preview-medications">
+                                        <h4>Medications:</h4>
+                                        <div id="rxPreviewMedsList">
+                                            <p class="rx-preview-empty">No medications added</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="rx-preview-notes">
+                                        <strong>Notes:</strong> <span id="rxPreviewNotes">--</span>
+                                    </div>
+
+                                    <div class="rx-preview-doctor">
+                                        <div class="rx-preview-signature">
+                                            <div class="rx-signature-line"></div>
+                                            <div class="rx-doctor-info">
+                                                <strong id="rxPreviewDoctor">Dr. --</strong><br>
+                                                <small>License: <span id="rxPreviewLicense">--</span></small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Action Buttons -->
+                                <div class="prescription-actions">
+                                    <button class="btn-rx-action btn-print" id="rxPrintBtn">
+                                        <i class="fas fa-print"></i>
+                                        <span>Print Prescription</span>
+                                    </button>
+                                    <button class="btn-rx-action btn-send-cart" id="rxSendCartBtn">
+                                        <i class="fas fa-cart-plus"></i>
+                                        <span>Send to POS</span>
+                                    </button>
+                                    <button class="btn-rx-action btn-save" id="rxSaveBtn">
+                                        <i class="fas fa-save"></i>
+                                        <span>Save Prescription</span>
+                                    </button>
+                                    <button class="btn-rx-action btn-clear" id="rxClearBtn">
+                                        <i class="fas fa-times"></i>
+                                        <span>Clear Form</span>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Generate Prescription Module -->
-                <div class="module-content" id="module-prescription-generate">
-                    <div class="module-header">
-                        <h1>Generate Prescription</h1>
-                        <p>Create a new prescription for patients</p>
-                    </div>
-                    <div class="module-body">
-                        <div class="placeholder-content">
-                            <i class="fas fa-file-medical"></i>
-                            <h2>Generate Prescription Module</h2>
-                            <p>This module is ready for future implementation.</p>
+                <!-- Manual Medication Entry Modal -->
+                <div class="rx-modal-overlay" id="rxManualMedModal">
+                    <div class="rx-modal-container">
+                        <div class="rx-modal-header">
+                            <h3><i class="fas fa-pills"></i> Add Medication Manually</h3>
+                            <button class="rx-modal-close" id="rxManualMedClose">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="rx-modal-body">
+                            <div class="rx-modal-grid">
+                                <div class="rx-form-group">
+                                    <label for="rxManualMedName">
+                                        <i class="fas fa-capsules"></i> Medication Name *
+                                    </label>
+                                    <input type="text" id="rxManualMedName" class="rx-input" placeholder="Enter medication name" required>
+                                </div>
+                                <div class="rx-form-group">
+                                    <label for="rxManualMedDosage">
+                                        <i class="fas fa-prescription-bottle"></i> Dosage *
+                                    </label>
+                                    <input type="text" id="rxManualMedDosage" class="rx-input" placeholder="e.g., 500mg, 10ml" required>
+                                </div>
+                            </div>
+                            
+                            <div class="rx-modal-grid">
+                                <div class="rx-form-group">
+                                    <label for="rxManualMedFrequency">
+                                        <i class="fas fa-clock"></i> Frequency *
+                                    </label>
+                                    <select id="rxManualMedFrequency" class="rx-select">
+                                        <option value="Once daily">Once daily</option>
+                                        <option value="Twice daily">Twice daily</option>
+                                        <option value="Three times daily">Three times daily</option>
+                                        <option value="Four times daily">Four times daily</option>
+                                        <option value="Every 4 hours">Every 4 hours</option>
+                                        <option value="Every 6 hours">Every 6 hours</option>
+                                        <option value="Every 8 hours">Every 8 hours</option>
+                                        <option value="As needed">As needed (PRN)</option>
+                                        <option value="Before meals">Before meals</option>
+                                        <option value="After meals">After meals</option>
+                                    </select>
+                                </div>
+                                <div class="rx-form-group">
+                                    <label for="rxManualMedDuration">
+                                        <i class="fas fa-calendar-alt"></i> Duration *
+                                    </label>
+                                    <input type="text" id="rxManualMedDuration" class="rx-input" placeholder="e.g., 7 days, 2 weeks" required>
+                                </div>
+                            </div>
+
+                            <div class="rx-form-group">
+                                <label for="rxManualMedQuantity">
+                                    <i class="fas fa-sort-numeric-up"></i> Quantity
+                                </label>
+                                <input type="number" id="rxManualMedQuantity" class="rx-input" value="1" min="1">
+                            </div>
+
+                            <div class="rx-form-group">
+                                <label for="rxManualMedInstructions">
+                                    <i class="fas fa-notes-medical"></i> Special Instructions
+                                </label>
+                                <textarea id="rxManualMedInstructions" class="rx-textarea" rows="3" placeholder="Additional instructions or notes..."></textarea>
+                            </div>
+                        </div>
+                        <div class="rx-modal-footer">
+                            <button class="rx-btn rx-btn-cancel" id="rxManualMedCancel">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>
+                            <button class="rx-btn rx-btn-add" id="rxManualMedAdd">
+                                <i class="fas fa-plus"></i> Add Medication
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -1269,15 +1514,15 @@
                                     <div class="clean-form-row">
                                         <div class="clean-form-group">
                                             <label for="invItemName">Drug/Product Name *</label>
-                                            <input type="text" id="invItemName" placeholder="e.g., Paracetamol" required>
+                                            <input type="text" id="invItemName" placeholder="Enter drug or product name" required>
                                         </div>
                                         <div class="clean-form-group">
                                             <label for="invGenericName">Generic Name</label>
-                                            <input type="text" id="invGenericName" placeholder="e.g., Acetaminophen">
+                                            <input type="text" id="invGenericName" placeholder="Enter generic name">
                                         </div>
                                         <div class="clean-form-group">
                                             <label for="invManufacturer">Manufacturer</label>
-                                            <input type="text" id="invManufacturer" placeholder="e.g., GSK, Pfizer">
+                                            <input type="text" id="invManufacturer" placeholder="Enter manufacturer name">
                                         </div>
                                     </div>
                                     <div class="clean-form-row">
@@ -2165,9 +2410,11 @@
 
     <!-- Firebase SDK -->
     <script type="module" src="js/firebase-config.js"></script>
+    <script type="module" src="js/dashboard.js"></script>
     <script type="module" src="js/sales.js"></script>
     <script type="module" src="js/all-sales.js"></script>
     <script type="module" src="js/pos-module.js"></script>
+    <script type="module" src="js/prescription.js"></script>
     <script type="module" src="js/inventory.js"></script>
     <script type="module" src="js/inventory-view.js"></script>
     <script src="js/admin-panel.js"></script>

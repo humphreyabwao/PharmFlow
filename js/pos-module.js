@@ -297,12 +297,14 @@ import {
             // Add click handlers to results
             elements.searchResults.querySelectorAll('.pos-search-item').forEach(el => {
                 el.addEventListener('click', () => {
-                    const itemId = parseInt(el.dataset.id);
+                    const itemId = el.dataset.id;
                     const item = inventoryData.find(i => i.id === itemId);
                     if (item && item.stock > 0) {
                         addToCart(item);
                         hideSearchResults();
                         elements.searchInput.value = '';
+                    } else if (item && item.stock === 0) {
+                        alert('This item is out of stock!');
                     }
                 });
             });
@@ -339,18 +341,36 @@ import {
     // Cart Management
     // ============================================
     function addToCart(item, quantity = 1) {
+        // Check if item is out of stock
+        if (!item.isManual && item.stock === 0) {
+            alert(`Cannot add "${item.name}" - Out of stock!`);
+            return;
+        }
+
         const existingIndex = state.cartItems.findIndex(i => i.id === item.id);
         
         if (existingIndex > -1) {
-            state.cartItems[existingIndex].quantity += quantity;
+            // Check if adding more would exceed stock
+            const newQuantity = state.cartItems[existingIndex].quantity + quantity;
+            if (!item.isManual && newQuantity > item.stock) {
+                alert(`Cannot add more "${item.name}". Only ${item.stock} available in stock. Current cart quantity: ${state.cartItems[existingIndex].quantity}`);
+                return;
+            }
+            state.cartItems[existingIndex].quantity = newQuantity;
         } else {
+            // Check if initial quantity exceeds stock
+            if (!item.isManual && quantity > item.stock) {
+                alert(`Cannot add ${quantity} of "${item.name}". Only ${item.stock} available in stock.`);
+                return;
+            }
             state.cartItems.push({
                 id: item.id,
                 name: item.name,
                 dosage: item.dosage || '',
                 price: item.price,
                 quantity: quantity,
-                isManual: item.isManual || false
+                isManual: item.isManual || false,
+                maxStock: item.stock
             });
         }
 
@@ -365,13 +385,21 @@ import {
     }
 
     function updateQuantity(index, change) {
-        const item = state.cartItems[index];
-        const newQty = item.quantity + change;
+        const cartItem = state.cartItems[index];
+        const newQty = cartItem.quantity + change;
         
         if (newQty <= 0) {
             removeFromCart(index);
         } else {
-            item.quantity = newQty;
+            // Check stock availability if not manual entry
+            if (!cartItem.isManual) {
+                const inventoryItem = inventoryData.find(i => i.id === cartItem.id);
+                if (inventoryItem && newQty > inventoryItem.stock) {
+                    alert(`Cannot add more. Only ${inventoryItem.stock} available in stock.`);
+                    return;
+                }
+            }
+            cartItem.quantity = newQty;
             updateCartDisplay();
             recalculateTotals();
         }

@@ -261,7 +261,10 @@
     }
 
     function refreshDashboard() {
-        console.info('PharmaFlow dashboard refresh requested. Hook up data providers here.');
+        console.info('PharmaFlow dashboard refresh requested.');
+        if (window.PharmaFlowDashboard && window.PharmaFlowDashboard.refresh) {
+            window.PharmaFlowDashboard.refresh();
+        }
     }
 
     function formatCurrency(value) {

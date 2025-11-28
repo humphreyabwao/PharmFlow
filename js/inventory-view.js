@@ -1688,25 +1688,25 @@ import {
         ];
 
         const sampleRow = [
-            'Paracetamol 500mg',
-            'Acetaminophen',
-            'tablets',
-            'tablet',
-            '500mg',
-            'GSK',
-            '100',
-            'pieces',
-            '50',
-            '75',
-            '20',
-            'BATCH001',
-            '2026-12-31',
-            '2024-01-15',
-            '',
-            'Shelf A1',
-            'PharmSupply Ltd',
-            'Pain reliever and fever reducer',
-            'false'
+            'Drug Name',
+            'Generic Name',
+            'Category',
+            'Dosage Form',
+            'Strength',
+            'Manufacturer',
+            'Quantity',
+            'Unit',
+            'Unit Price',
+            'Selling Price',
+            'Reorder Level',
+            'Batch Number',
+            'Expiry Date (YYYY-MM-DD)',
+            'Manufacturing Date (YYYY-MM-DD)',
+            'Barcode',
+            'Location',
+            'Supplier',
+            'Description',
+            'Prescription Required (true/false)'
         ];
 
         const csvContent = [
