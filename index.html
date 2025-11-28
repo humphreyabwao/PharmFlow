@@ -10,6 +10,10 @@
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
     <!-- SheetJS Library for Excel file parsing -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- jsPDF Library for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- jsPDF AutoTable plugin for tables in PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
     <div class="app-container">
@@ -1705,8 +1709,18 @@
                 <!-- Create Order Module -->
                 <div class="module-content" id="module-orders-create">
                     <div class="module-header">
-                        <h1>Create Order</h1>
-                        <p>Create a new order from supplier</p>
+                        <div>
+                            <h1>Create Order</h1>
+                            <p>Create a new order from supplier</p>
+                        </div>
+                        <div class="module-header-actions">
+                            <button class="btn-module-action btn-view-orders" data-module="orders-view">
+                                <i class="fas fa-list"></i> Manage Orders
+                            </button>
+                            <button class="btn-module-action btn-view-suppliers" data-module="orders-supplier">
+                                <i class="fas fa-truck"></i> Suppliers
+                            </button>
+                        </div>
                     </div>
                     <div class="module-body">
                         <div class="order-create-container">
@@ -1828,14 +1842,234 @@
                 <!-- Manage Orders Module -->
                 <div class="module-content" id="module-orders-view">
                     <div class="module-header">
-                        <h1>Manage Orders</h1>
-                        <p>Browse and manage all orders</p>
+                        <div>
+                            <h1>Manage Orders</h1>
+                            <p>Track and manage all purchase orders</p>
+                        </div>
+                        <div class="module-header-actions">
+                            <button class="btn-module-action btn-create-order" data-module="orders-create">
+                                <i class="fas fa-plus-circle"></i> Create Order
+                            </button>
+                            <button class="btn-module-action btn-view-suppliers" data-module="orders-supplier">
+                                <i class="fas fa-truck"></i> Suppliers
+                            </button>
+                            <button class="btn-module-action btn-mark-completed" id="moMarkCompleted">
+                                <i class="fas fa-check-circle"></i> Mark Completed
+                            </button>
+                            <button class="btn-module-action btn-print-invoice" id="moPrintInvoice">
+                                <i class="fas fa-print"></i> Print Invoice
+                            </button>
+                            <button class="btn-module-action btn-delete-order" id="moDeleteOrder">
+                                <i class="fas fa-trash-alt"></i> Delete
+                            </button>
+                        </div>
                     </div>
                     <div class="module-body">
-                        <div class="placeholder-content">
-                            <i class="fas fa-list-alt"></i>
-                            <h2>Manage Orders Module</h2>
-                            <p>This module is ready for future implementation.</p>
+                        <!-- Stats Cards -->
+                        <div class="manage-orders-stats">
+                            <div class="mo-stat-card">
+                                <div class="mo-stat-icon">
+                                    <i class="fas fa-shopping-cart"></i>
+                                </div>
+                                <div class="mo-stat-content">
+                                    <div class="mo-stat-value" id="moTotalOrders">0</div>
+                                    <div class="mo-stat-label">Total Orders</div>
+                                </div>
+                            </div>
+                            <div class="mo-stat-card">
+                                <div class="mo-stat-icon">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <div class="mo-stat-content">
+                                    <div class="mo-stat-value" id="moPendingOrders">0</div>
+                                    <div class="mo-stat-label">Pending</div>
+                                </div>
+                            </div>
+                            <div class="mo-stat-card">
+                                <div class="mo-stat-icon">
+                                    <i class="fas fa-money-bill-wave"></i>
+                                </div>
+                                <div class="mo-stat-content">
+                                    <div class="mo-stat-value" id="moTotalValue">KSH 0</div>
+                                    <div class="mo-stat-label">Total Value</div>
+                                </div>
+                            </div>
+                            <div class="mo-stat-card">
+                                <div class="mo-stat-icon">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                                <div class="mo-stat-content">
+                                    <div class="mo-stat-value" id="moCompletedOrders">0</div>
+                                    <div class="mo-stat-label">Completed</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Controls -->
+                        <div class="manage-orders-controls">
+                            <div class="mo-controls-left">
+                                <select id="moStatusFilter" class="mo-select">
+                                    <option value="all">All Orders</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="processing">Processing</option>
+                                    <option value="completed">Completed</option>
+                                    <option value="cancelled">Cancelled</option>
+                                </select>
+                                <input type="text" id="moSearchInput" class="mo-search" placeholder="Search by order number or supplier...">
+                            </div>
+                            <div class="mo-controls-right">
+                                <button class="mo-btn mo-btn-secondary" id="moExportExcel">
+                                    <i class="fas fa-file-excel"></i> Export Excel
+                                </button>
+                                <button class="mo-btn mo-btn-secondary" id="moExportPDF">
+                                    <i class="fas fa-file-pdf"></i> Export PDF
+                                </button>
+                                <button class="mo-btn mo-btn-secondary" id="moRefreshBtn">
+                                    <i class="fas fa-sync-alt"></i> Refresh
+                                </button>
+                                <button class="mo-btn mo-btn-primary" data-module="orders-create">
+                                    <i class="fas fa-plus"></i> New Order
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Orders Table -->
+                        <div class="manage-orders-table-wrapper">
+                            <div class="mo-loading" id="moLoading">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                <p>Loading orders...</p>
+                            </div>
+                            <div class="mo-empty" id="moEmpty" style="display: none;">
+                                <i class="fas fa-inbox"></i>
+                                <h3>No Orders Yet</h3>
+                                <p>Create your first order to get started</p>
+                                <button class="mo-btn mo-btn-primary" data-module="orders-create">
+                                    <i class="fas fa-plus"></i> Create Order
+                                </button>
+                            </div>
+                            <table class="manage-orders-table" id="moTable" style="display: none;">
+                                <thead>
+                                    <tr>
+                                        <th><input type="checkbox" id="moSelectAll" title="Select All"></th>
+                                        <th>Order #</th>
+                                        <th>Date</th>
+                                        <th>Supplier</th>
+                                        <th>Items</th>
+                                        <th>Total</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="moTableBody"></tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        <div class="manage-orders-pagination" id="moPagination" style="display: none;">
+                            <div class="mo-pagination-info">
+                                <span>Showing <strong id="moPageStart">0</strong> to <strong id="moPageEnd">0</strong> of <strong id="moPageTotal">0</strong> orders</span>
+                            </div>
+                            <div class="mo-pagination-controls">
+                                <button class="mo-page-btn" id="moFirstPage" disabled>
+                                    <i class="fas fa-angle-double-left"></i>
+                                </button>
+                                <button class="mo-page-btn" id="moPrevPage" disabled>
+                                    <i class="fas fa-angle-left"></i>
+                                </button>
+                                <div class="mo-page-numbers" id="moPageNumbers"></div>
+                                <button class="mo-page-btn" id="moNextPage" disabled>
+                                    <i class="fas fa-angle-right"></i>
+                                </button>
+                                <button class="mo-page-btn" id="moLastPage" disabled>
+                                    <i class="fas fa-angle-double-right"></i>
+                                </button>
+                            </div>
+                            <div class="mo-pagination-size">
+                                <label>Show:</label>
+                                <select id="moPageSize" class="mo-select">
+                                    <option value="10">10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Details Modal -->
+                <div class="mo-modal" id="moDetailsModal" style="display: none;">
+                    <div class="mo-modal-overlay"></div>
+                    <div class="mo-modal-content">
+                        <div class="mo-modal-header">
+                            <h2>Order Details</h2>
+                            <button class="mo-modal-close" id="moModalClose">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="mo-modal-body">
+                            <div class="mo-modal-section">
+                                <div class="mo-modal-row">
+                                    <div class="mo-modal-field">
+                                        <label>Order Number</label>
+                                        <div id="moModalOrderNum" class="mo-modal-value"></div>
+                                    </div>
+                                    <div class="mo-modal-field">
+                                        <label>Date</label>
+                                        <div id="moModalOrderDate" class="mo-modal-value"></div>
+                                    </div>
+                                    <div class="mo-modal-field">
+                                        <label>Status</label>
+                                        <select id="moModalStatus" class="mo-select">
+                                            <option value="pending">Pending</option>
+                                            <option value="processing">Processing</option>
+                                            <option value="completed">Completed</option>
+                                            <option value="cancelled">Cancelled</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mo-modal-section">
+                                <h3>Supplier Information</h3>
+                                <div class="mo-modal-row">
+                                    <div class="mo-modal-field">
+                                        <label>Supplier Name</label>
+                                        <div id="moModalSupplier" class="mo-modal-value"></div>
+                                    </div>
+                                    <div class="mo-modal-field">
+                                        <label>Contact</label>
+                                        <div id="moModalContact" class="mo-modal-value"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mo-modal-section">
+                                <h3>Order Items</h3>
+                                <table class="mo-modal-items-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Item Name</th>
+                                            <th>Quantity</th>
+                                            <th>Unit Price</th>
+                                            <th>Subtotal</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="moModalItems"></tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td colspan="3"><strong>Grand Total</strong></td>
+                                            <td><strong id="moModalTotal"></strong></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                            <div class="mo-modal-section" id="moModalNotesSection" style="display: none;">
+                                <h3>Notes</h3>
+                                <div id="moModalNotes" class="mo-modal-notes"></div>
+                            </div>
+                        </div>
+                        <div class="mo-modal-footer">
+                            <button class="mo-btn mo-btn-secondary" id="moModalCloseBtn">Close</button>
+                            <button class="mo-btn mo-btn-primary" id="moModalSaveBtn">Save Changes</button>
                         </div>
                     </div>
                 </div>
@@ -2644,6 +2878,7 @@
     <script type="module" src="js/inventory-view.js"></script>
     <script type="module" src="js/supplier.js"></script>
     <script type="module" src="js/order.js"></script>
+    <script type="module" src="js/manage-orders.js"></script>
     <script src="js/admin-panel.js"></script>
     <script src="js/app.js"></script>
 </body>

@@ -646,6 +646,14 @@ button {
 
 .module-header {
     margin-bottom: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+}
+
+.module-header > div:first-child {
+    flex: 1;
 }
 
 .module-header-content {
@@ -7039,8 +7047,8 @@ button {
    Supplier Management Styles
    ======================================== */
 
-/* Module Header Actions */
-.module-header {
+/* Module Header Actions - Specific to Supplier Module */
+#module-orders-supplier .module-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -7050,30 +7058,31 @@ button {
 
 .module-header-actions {
     display: flex;
-    gap: 12px;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
 }
 
 .btn-module-action {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 0;
-    font-size: 14px;
+    padding: 10px 16px;
+    border: 1px solid transparent;
+    font-size: 13px;
     font-weight: 600;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    transition: opacity 0.2s, transform 0.1s;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    gap: 6px;
+    transition: all 0.2s;
+    white-space: nowrap;
 }
 
 .btn-module-action:hover {
-    opacity: 0.9;
+    opacity: 0.85;
+    transform: translateY(-1px);
 }
 
 .btn-module-action:active {
-    transform: scale(0.98);
+    transform: translateY(0);
 }
 
 .btn-create-order {
@@ -7084,6 +7093,31 @@ button {
 .btn-view-orders {
     background-color: #1a73e8;
     color: white;
+}
+
+.btn-view-suppliers {
+    background-color: #f57c00;
+    color: white;
+}
+
+.btn-mark-completed {
+    background-color: #0f9d58;
+    color: white;
+}
+
+.btn-delete-order {
+    background-color: #d32f2f;
+    color: white;
+}
+
+.btn-print-invoice {
+    background-color: #7e57c2;
+    color: white;
+}
+
+.btn-module-action:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
 }
 
 /* Supplier Form Section */
@@ -8179,6 +8213,539 @@ button {
 
     .order-actions {
         flex-direction: column;
+    }
+}
+
+/* ========================================
+   Manage Orders Module Styles (Clean & Simple)
+   ======================================== */
+
+/* Stats Cards */
+.manage-orders-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.mo-stat-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px;
+    background-color: var(--surface-color);
+    border: 1px solid var(--border-color);
+}
+
+.mo-stat-icon {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--primary-color);
+    color: white;
+    font-size: 22px;
+}
+
+.mo-stat-content {
+    flex: 1;
+}
+
+.mo-stat-value {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.mo-stat-label {
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+/* Controls */
+.manage-orders-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding: 16px;
+    background-color: var(--surface-color);
+    border: 1px solid var(--border-color);
+}
+
+.mo-controls-left {
+    display: flex;
+    gap: 12px;
+    flex: 1;
+}
+
+.mo-controls-right {
+    display: flex;
+    gap: 12px;
+}
+
+.mo-select {
+    padding: 10px 14px;
+    border: 1px solid var(--border-color);
+    background-color: var(--surface-color);
+    color: var(--text-primary);
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.mo-select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.mo-search {
+    padding: 10px 14px;
+    border: 1px solid var(--border-color);
+    background-color: var(--surface-color);
+    color: var(--text-primary);
+    font-size: 14px;
+    flex: 1;
+    min-width: 300px;
+}
+
+.mo-search:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.mo-btn {
+    padding: 10px 16px;
+    border: 1px solid var(--border-color);
+    background-color: var(--surface-color);
+    color: var(--text-primary);
+    font-size: 14px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.mo-btn:hover {
+    background-color: var(--background-color);
+}
+
+.mo-btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.mo-btn-primary:hover {
+    opacity: 0.9;
+}
+
+.mo-btn-secondary {
+    background-color: var(--surface-color);
+    border-color: var(--border-color);
+}
+
+#moExportExcel:hover {
+    background-color: #217346;
+    color: white;
+    border-color: #217346;
+}
+
+#moExportPDF:hover {
+    background-color: #d32f2f;
+    color: white;
+    border-color: #d32f2f;
+}
+
+/* Table */
+.manage-orders-table-wrapper {
+    background-color: var(--surface-color);
+    border: 1px solid var(--border-color);
+    min-height: 400px;
+    margin-bottom: 24px;
+    position: relative;
+}
+
+.mo-loading,
+.mo-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    color: var(--text-secondary);
+}
+
+.mo-loading i {
+    font-size: 32px;
+    margin-bottom: 12px;
+}
+
+.mo-empty i {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
+.mo-empty h3 {
+    font-size: 18px;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+.mo-empty p {
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+.manage-orders-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.manage-orders-table thead th {
+    padding: 14px 16px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    background-color: var(--background-color);
+    border-bottom: 2px solid var(--border-color);
+}
+
+.manage-orders-table tbody tr {
+    border-bottom: 1px solid var(--border-color);
+}
+
+.manage-orders-table tbody tr:hover {
+    background-color: var(--background-color);
+}
+
+.manage-orders-table tbody td {
+    padding: 14px 16px;
+    font-size: 14px;
+    color: var(--text-primary);
+}
+
+.manage-orders-table th:first-child,
+.manage-orders-table td:first-child {
+    width: 40px;
+    text-align: center;
+}
+
+.mo-order-checkbox,
+#moSelectAll {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.mo-btn-icon {
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    background-color: transparent;
+    color: var(--primary-color);
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.mo-btn-icon:hover {
+    background-color: var(--background-color);
+}
+
+/* Status Badges */
+.mo-status-badge {
+    display: inline-block;
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: capitalize;
+}
+
+.mo-status-pending {
+    background-color: var(--warning-color);
+    color: #000;
+}
+
+.mo-status-processing {
+    background-color: var(--info-color);
+    color: white;
+}
+
+.mo-status-completed {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.mo-status-cancelled {
+    background-color: var(--danger-color);
+    color: white;
+}
+
+/* Pagination */
+.manage-orders-pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    background-color: var(--surface-color);
+    border: 1px solid var(--border-color);
+}
+
+.mo-pagination-info {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.mo-pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.mo-page-btn {
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    background-color: var(--surface-color);
+    color: var(--text-primary);
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.mo-page-btn:hover:not(:disabled) {
+    background-color: var(--background-color);
+}
+
+.mo-page-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.mo-page-numbers {
+    display: flex;
+    gap: 4px;
+}
+
+.mo-page-num {
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    background-color: var(--surface-color);
+    color: var(--text-primary);
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.mo-page-num:hover {
+    background-color: var(--background-color);
+}
+
+.mo-page-num.active {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.mo-pagination-size {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+/* Modal */
+.mo-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+
+.mo-modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+.mo-modal-content {
+    position: relative;
+    background-color: var(--surface-color);
+    border: 1px solid var(--border-color);
+    width: 90%;
+    max-width: 800px;
+    max-height: 90vh;
+    overflow-y: auto;
+    z-index: 2001;
+}
+
+.mo-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.mo-modal-header h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.mo-modal-close {
+    padding: 8px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: var(--text-secondary);
+    cursor: pointer;
+}
+
+.mo-modal-close:hover {
+    color: var(--text-primary);
+}
+
+.mo-modal-body {
+    padding: 24px;
+}
+
+.mo-modal-section {
+    margin-bottom: 24px;
+}
+
+.mo-modal-section h3 {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+}
+
+.mo-modal-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.mo-modal-field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+}
+
+.mo-modal-value {
+    font-size: 14px;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.mo-modal-items-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.mo-modal-items-table th,
+.mo-modal-items-table td {
+    padding: 12px;
+    text-align: left;
+    font-size: 13px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.mo-modal-items-table th {
+    background-color: var(--background-color);
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    font-size: 12px;
+}
+
+.mo-modal-items-table td {
+    color: var(--text-primary);
+}
+
+.mo-modal-items-table tfoot td {
+    font-weight: 600;
+    background-color: var(--background-color);
+}
+
+.mo-modal-notes {
+    font-size: 14px;
+    color: var(--text-secondary);
+    padding: 12px;
+    background-color: var(--background-color);
+    border-left: 3px solid var(--primary-color);
+}
+
+.mo-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 16px 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+/* Responsive */
+@media screen and (max-width: 1200px) {
+    .manage-orders-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .manage-orders-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .manage-orders-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .mo-controls-left {
+        flex-direction: column;
+    }
+
+    .mo-search {
+        min-width: auto;
+    }
+
+    .manage-orders-table-wrapper {
+        overflow-x: auto;
+    }
+
+    .manage-orders-table {
+        min-width: 700px;
+    }
+
+    .manage-orders-pagination {
+        flex-direction: column;
+        gap: 12px;
+        align-items: stretch;
+    }
+
+    .mo-modal-content {
+        width: 95%;
+        max-height: 95vh;
+    }
+
+    .mo-modal-row {
+        grid-template-columns: 1fr;
     }
 }
 
