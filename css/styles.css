@@ -15376,4 +15376,226 @@ button {
     }
 }
 
+/* ========================================
+   Thermal Receipt Print Styles (80mm/58mm)
+   ======================================== */
+@media print {
+    /* Page setup for thermal printer */
+    @page {
+        size: 80mm auto;
+        margin: 0;
+        padding: 0;
+    }
+    
+    /* Hide everything by default */
+    html, body {
+        visibility: hidden;
+        margin: 0;
+        padding: 0;
+        width: 80mm;
+        background: white !important;
+    }
+    
+    body * {
+        visibility: hidden;
+    }
+    
+    /* Show the receipt modal and its contents */
+    .sales-modal.show,
+    .sales-modal.show * {
+        visibility: visible !important;
+    }
+    
+    .sales-modal.show {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 80mm;
+        max-width: 80mm;
+        height: auto;
+        background: white !important;
+        padding: 0;
+        margin: 0;
+        overflow: visible;
+    }
+    
+    .sales-modal.show .sales-modal-content {
+        position: relative;
+        width: 80mm;
+        max-width: 80mm;
+        box-shadow: none;
+        border: none;
+        border-radius: 0;
+        margin: 0;
+        padding: 3mm;
+        background: white !important;
+    }
+    
+    /* Hide modal header close button and footer in print */
+    .sales-modal.show .sales-modal-close,
+    .sales-modal.show .sales-modal-footer,
+    .sales-modal.show .sales-modal-header {
+        display: none !important;
+    }
+    
+    /* Style the receipt content */
+    .sales-modal.show .sales-modal-body {
+        padding: 0;
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 10px;
+        line-height: 1.3;
+        color: #000 !important;
+    }
+    
+    /* Pharmacy Header - Add before content */
+    .sales-modal.show .sales-modal-body::before {
+        content: "═══════════════════════════════\A           PHARMAFLOW\A        Pharmacy & Drugstore\A     Tel: +254 700 000 000\A═══════════════════════════════";
+        white-space: pre-wrap;
+        display: block;
+        text-align: center;
+        font-weight: bold;
+        font-size: 11px;
+        margin-bottom: 8px;
+        font-family: 'Courier New', Courier, monospace;
+    }
+    
+    /* Receipt header styling */
+    .sales-modal.show .sale-detail-header {
+        text-align: center;
+        border-bottom: 1px dashed #000;
+        padding-bottom: 6px;
+        margin-bottom: 6px;
+    }
+    
+    .sales-modal.show .sale-detail-header h4 {
+        font-size: 11px;
+        margin: 0 0 2px 0;
+        font-weight: bold;
+    }
+    
+    .sales-modal.show .sale-detail-header p {
+        font-size: 9px;
+        margin: 0;
+    }
+    
+    .sales-modal.show .sale-detail-header .receipt-info {
+        margin-bottom: 4px;
+    }
+    
+    /* Customer info rows */
+    .sales-modal.show .sale-detail-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 2px 0;
+        font-size: 9px;
+        border: none;
+    }
+    
+    .sales-modal.show .sale-detail-row .label {
+        font-weight: bold;
+    }
+    
+    /* Items section */
+    .sales-modal.show .sale-items-detail {
+        margin: 8px 0;
+        border-top: 1px dashed #000;
+        border-bottom: 1px dashed #000;
+        padding: 6px 0;
+    }
+    
+    .sales-modal.show .sale-items-detail h4 {
+        font-size: 10px;
+        text-align: center;
+        margin: 0 0 6px 0;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+    
+    .sales-modal.show .items-detail-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 9px;
+    }
+    
+    .sales-modal.show .items-detail-table thead {
+        border-bottom: 1px solid #000;
+    }
+    
+    .sales-modal.show .items-detail-table th {
+        padding: 2px 1px;
+        text-align: left;
+        font-size: 8px;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+    
+    .sales-modal.show .items-detail-table td {
+        padding: 3px 1px;
+        text-align: left;
+        font-size: 9px;
+        border: none;
+        vertical-align: top;
+    }
+    
+    .sales-modal.show .items-detail-table th:last-child,
+    .sales-modal.show .items-detail-table td:last-child {
+        text-align: right;
+    }
+    
+    .sales-modal.show .items-detail-table th:nth-child(2),
+    .sales-modal.show .items-detail-table td:nth-child(2),
+    .sales-modal.show .items-detail-table th:nth-child(3),
+    .sales-modal.show .items-detail-table td:nth-child(3) {
+        text-align: center;
+    }
+    
+    /* Totals section */
+    .sales-modal.show .sale-totals-detail {
+        margin-top: 6px;
+        padding-top: 6px;
+    }
+    
+    .sales-modal.show .total-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 2px 0;
+        font-size: 9px;
+    }
+    
+    .sales-modal.show .total-row.grand {
+        font-size: 12px;
+        font-weight: bold;
+        border-top: 1px dashed #000;
+        border-bottom: 1px dashed #000;
+        margin-top: 4px;
+        padding: 4px 0;
+    }
+    
+    /* Receipt footer */
+    .sales-modal.show .sales-modal-body::after {
+        content: "───────────────────────────────\A        Thank you for shopping\A            with us!\A\A      Get well soon! 💊\A\A───────────────────────────────\A    Prices include all taxes\A     No refunds after 24hrs\A───────────────────────────────";
+        white-space: pre-wrap;
+        display: block;
+        text-align: center;
+        margin-top: 10px;
+        font-size: 9px;
+        font-family: 'Courier New', Courier, monospace;
+    }
+    
+    /* Hide payment badges styling for cleaner print */
+    .sales-modal.show .payment-badge,
+    .sales-modal.show .status-badge {
+        background: none !important;
+        color: #000 !important;
+        padding: 0 !important;
+        border: none !important;
+        font-size: 9px !important;
+    }
+    
+    /* Status badge in header */
+    .sales-modal.show .sale-detail-header .status-badge {
+        display: none !important;
+    }
+}
+
 

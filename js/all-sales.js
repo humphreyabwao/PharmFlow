@@ -8,6 +8,7 @@ import {
     onSnapshot, 
     query, 
     orderBy,
+    limit,
     doc,
     updateDoc,
     serverTimestamp
@@ -123,7 +124,8 @@ import {
         showLoading(true);
         
         const salesRef = collection(db, 'sales');
-        const salesQuery = query(salesRef, orderBy('createdAt', 'desc'));
+        // Limit initial load for better performance - user can filter for more
+        const salesQuery = query(salesRef, orderBy('createdAt', 'desc'), limit(500));
 
         state.unsubscribe = onSnapshot(salesQuery, (snapshot) => {
             state.sales = [];
@@ -419,7 +421,21 @@ import {
     }
 
     function handlePrintReceipt() {
-        window.print();
+        // Make sure the modal is visible for printing
+        if (elements.viewModal && elements.viewModal.classList.contains('show')) {
+            // Add print-ready class for any additional styling
+            document.body.classList.add('printing-receipt');
+            
+            // Trigger print
+            window.print();
+            
+            // Remove print class after printing
+            setTimeout(() => {
+                document.body.classList.remove('printing-receipt');
+            }, 1000);
+        } else {
+            alert('Please open a sale to print its receipt.');
+        }
     }
 
     // ============================================

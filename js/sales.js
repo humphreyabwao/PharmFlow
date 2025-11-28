@@ -14,6 +14,7 @@ import {
     query, 
     orderBy, 
     where,
+    limit,
     Timestamp,
     serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
@@ -133,8 +134,17 @@ import {
     function startRealtimeListener() {
         showLoading(true);
         
+        // Query only recent sales (last 7 days) for better performance
+        const now = new Date();
+        const sevenDaysAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
+        
         const salesRef = collection(db, 'sales');
-        const salesQuery = query(salesRef, orderBy('createdAt', 'desc'));
+        const salesQuery = query(
+            salesRef, 
+            where('createdAt', '>=', Timestamp.fromDate(sevenDaysAgo)),
+            orderBy('createdAt', 'desc'),
+            limit(500) // Limit to prevent loading too many records
+        );
 
         state.unsubscribe = onSnapshot(salesQuery, (snapshot) => {
             state.sales = [];
@@ -153,6 +163,32 @@ import {
             console.info(`Today's sales updated: ${state.todaySales.length} records`);
         }, (error) => {
             console.error('Error listening to sales:', error);
+            // Fallback to unfiltered query if index doesn't exist
+            startFallbackListener();
+        });
+    }
+    
+    // Fallback listener without date filter (in case Firestore index is not set up)
+    function startFallbackListener() {
+        const salesRef = collection(db, 'sales');
+        const salesQuery = query(salesRef, orderBy('createdAt', 'desc'), limit(200));
+
+        state.unsubscribe = onSnapshot(salesQuery, (snapshot) => {
+            state.sales = [];
+            snapshot.forEach((doc) => {
+                state.sales.push({
+                    id: doc.id,
+                    ...doc.data()
+                });
+            });
+
+            filterTodaySales();
+            applyFilters();
+            updateStats();
+            showLoading(false);
+            console.info(`Sales loaded (fallback): ${state.sales.length} records`);
+        }, (error) => {
+            console.error('Error in fallback listener:', error);
             showLoading(false);
             showEmptyState(true);
         });
@@ -395,7 +431,21 @@ import {
     }
 
     function handlePrintReceipt() {
-        window.print();
+        // Make sure the modal is visible for printing
+        if (elements.viewSaleModal && elements.viewSaleModal.classList.contains('show')) {
+            // Add print-ready class for any additional styling
+            document.body.classList.add('printing-receipt');
+            
+            // Trigger print
+            window.print();
+            
+            // Remove print class after printing
+            setTimeout(() => {
+                document.body.classList.remove('printing-receipt');
+            }, 1000);
+        } else {
+            alert('Please open a sale to print its receipt.');
+        }
     }
 
     // ============================================
