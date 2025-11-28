@@ -22,6 +22,9 @@ import {
         inventoryData: [],
         salesData: [],
         todaySales: [],
+        customersData: [],
+        wholesaleData: [],
+        todayWholesale: [],
         stats: {
             salesToday: 0,
             overallSales: 0,
@@ -36,6 +39,8 @@ import {
 
     let unsubscribeInventory = null;
     let unsubscribeSales = null;
+    let unsubscribeCustomers = null;
+    let unsubscribeWholesale = null;
 
     // ============================================
     // Initialize Module
@@ -44,6 +49,8 @@ import {
         console.info('PharmaFlow: Initializing dashboard module...');
         setupInventoryListener();
         setupSalesListener();
+        setupCustomersListener();
+        setupWholesaleListener();
     }
 
     // ============================================
@@ -131,6 +138,88 @@ import {
     }
 
     // ============================================
+    // Real-time Customers Listener
+    // ============================================
+    function setupCustomersListener() {
+        try {
+            const customersRef = collection(db, 'customers');
+            const customersQuery = query(customersRef);
+
+            unsubscribeCustomers = onSnapshot(customersQuery, (snapshot) => {
+                state.customersData = [];
+                snapshot.forEach((doc) => {
+                    state.customersData.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+                
+                // Update total customers count from actual customers collection
+                state.stats.totalCustomers = state.customersData.length;
+                updateDashboard();
+                
+                console.info(`Dashboard: Loaded ${state.customersData.length} customers`);
+            }, (error) => {
+                console.error('Dashboard: Error listening to customers:', error);
+            });
+        } catch (error) {
+            console.error('Dashboard: Failed to setup customers listener:', error);
+        }
+    }
+
+    // ============================================
+    // Real-time Wholesale/Bulk Sales Listener
+    // ============================================
+    function setupWholesaleListener() {
+        try {
+            const wholesaleRef = collection(db, 'wholesaleSales');
+            const wholesaleQuery = query(wholesaleRef, orderBy('createdAt', 'desc'));
+
+            unsubscribeWholesale = onSnapshot(wholesaleQuery, (snapshot) => {
+                state.wholesaleData = [];
+                state.todayWholesale = [];
+                
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const todayTimestamp = Timestamp.fromDate(today);
+
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const wholesaleOrder = {
+                        id: doc.id,
+                        timestamp: data.createdAt || data.timestamp,
+                        total: parseFloat(data.grandTotal) || parseFloat(data.total) || 0,
+                        status: data.status || 'pending',
+                        customer: data.customerName || data.customer || '',
+                        items: data.items || []
+                    };
+                    
+                    state.wholesaleData.push(wholesaleOrder);
+                    
+                    // Check if wholesale sale is from today and completed
+                    const orderTimestamp = data.createdAt || data.timestamp;
+                    if (orderTimestamp && orderTimestamp.seconds >= todayTimestamp.seconds) {
+                        // Only count completed/delivered orders
+                        if (data.status === 'completed' || data.status === 'delivered' || !data.status) {
+                            state.todayWholesale.push(wholesaleOrder);
+                        }
+                    }
+                });
+                
+                // Calculate bulk/wholesale sales for today
+                state.stats.bulkSales = state.todayWholesale.reduce((sum, order) => sum + order.total, 0);
+                updateDashboard();
+                
+                console.info(`Dashboard: Loaded ${state.wholesaleData.length} wholesale orders (${state.todayWholesale.length} today)`);
+            }, (error) => {
+                console.error('Dashboard: Error listening to wholesale:', error);
+            });
+        } catch (error) {
+            console.error('Dashboard: Failed to setup wholesale listener:', error);
+        }
+    }
+
+    // ============================================
     // Calculate Inventory Statistics
     // ============================================
     function calculateInventoryStats() {
@@ -164,21 +253,8 @@ import {
         // Overall sales total
         state.stats.overallSales = state.salesData.reduce((sum, sale) => sum + sale.total, 0);
 
-        // Bulk sales today (sales with multiple items or high quantity)
-        state.stats.bulkSales = state.todaySales.reduce((sum, sale) => {
-            const isBulk = sale.items && sale.items.length > 5 || 
-                          sale.items && sale.items.some(item => item.quantity >= 10);
-            return isBulk ? sum + sale.total : sum;
-        }, 0);
-
-        // Total unique customers (count unique customer names)
-        const uniqueCustomers = new Set();
-        state.salesData.forEach(sale => {
-            if (sale.customer && sale.customer.trim() !== '') {
-                uniqueCustomers.add(sale.customer.toLowerCase());
-            }
-        });
-        state.stats.totalCustomers = uniqueCustomers.size;
+        // Note: bulkSales is now calculated from wholesaleSales collection in setupWholesaleListener
+        // Note: totalCustomers is now calculated from customers collection in setupCustomersListener
 
         // Expenses today (placeholder - would need expenses collection)
         state.stats.expensesToday = 0;
@@ -205,6 +281,14 @@ import {
             unsubscribeSales();
             unsubscribeSales = null;
         }
+        if (unsubscribeCustomers) {
+            unsubscribeCustomers();
+            unsubscribeCustomers = null;
+        }
+        if (unsubscribeWholesale) {
+            unsubscribeWholesale();
+            unsubscribeWholesale = null;
+        }
     }
 
     // ============================================
@@ -214,6 +298,8 @@ import {
         init,
         cleanup,
         getStats: () => ({ ...state.stats }),
+        getCustomersCount: () => state.customersData.length,
+        getWholesaleTodayTotal: () => state.stats.bulkSales,
         refresh: () => {
             calculateInventoryStats();
             calculateSalesStats();
