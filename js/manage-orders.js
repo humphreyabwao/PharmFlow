@@ -1072,12 +1072,26 @@ class ManageOrdersModule {
 }
 
 // Initialize when DOM is ready
+let manageOrdersInstance = null;
+
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
-        window.PharmaFlowManageOrders = new ManageOrdersModule();
+        manageOrdersInstance = new ManageOrdersModule();
+        window.PharmaFlowManageOrders = manageOrdersInstance;
+        // Expose public API for global search
+        window.PharmaFlowOrders = {
+            getOrders: () => manageOrdersInstance.allOrders,
+            refresh: () => manageOrdersInstance.loadOrders()
+        };
     });
 } else {
-    window.PharmaFlowManageOrders = new ManageOrdersModule();
+    manageOrdersInstance = new ManageOrdersModule();
+    window.PharmaFlowManageOrders = manageOrdersInstance;
+    // Expose public API for global search
+    window.PharmaFlowOrders = {
+        getOrders: () => manageOrdersInstance.allOrders,
+        refresh: () => manageOrdersInstance.loadOrders()
+    };
 }
 
 export default ManageOrdersModule;

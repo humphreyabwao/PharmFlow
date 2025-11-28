@@ -312,10 +312,14 @@ import {
         init,
         cleanup,
         editSupplier,
-        deleteSupplier
+        deleteSupplier,
+        getSuppliers: () => state.suppliers,
+        refresh: handleRefresh
     };
 
     window.PharmaFlowSupplier = api;
+    // Also expose as PharmaFlowSuppliers for global search compatibility
+    window.PharmaFlowSuppliers = api;
 
     // Auto-initialize when DOM is ready
     if (document.readyState === 'loading') {

@@ -526,10 +526,13 @@ import {
     // ============================================
     window.PharmaFlowSales = {
         init,
+        getSales: () => state.sales,
+        getTodaySales: () => state.todaySales,
         addSaleFromPOS,
         viewSale,
         deleteSale,
         navigateToPOS,
+        refresh: startRealtimeListener,
         cleanup
     };
 

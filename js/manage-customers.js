@@ -487,15 +487,38 @@ class ManageCustomersModule {
             alert('Failed to delete customers: ' + error.message);
         }
     }
+
+    // Public API methods
+    getCustomers() {
+        return this.customers;
+    }
+
+    getFilteredCustomers() {
+        return this.filteredCustomers;
+    }
 }
 
 // Initialize
+let manageCustomersInstance = null;
+
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
-        window.manageCustomersModule = new ManageCustomersModule();
+        manageCustomersInstance = new ManageCustomersModule();
+        window.manageCustomersModule = manageCustomersInstance;
+        // Expose public API for global search
+        window.PharmaFlowCustomers = {
+            getCustomers: () => manageCustomersInstance.customers,
+            refresh: () => manageCustomersInstance.refresh()
+        };
     });
 } else {
-    window.manageCustomersModule = new ManageCustomersModule();
+    manageCustomersInstance = new ManageCustomersModule();
+    window.manageCustomersModule = manageCustomersInstance;
+    // Expose public API for global search
+    window.PharmaFlowCustomers = {
+        getCustomers: () => manageCustomersInstance.customers,
+        refresh: () => manageCustomersInstance.refresh()
+    };
 }
 
 export { ManageCustomersModule };

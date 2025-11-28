@@ -713,3 +713,13 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
+
+// Expose Public API for global search
+window.PharmaFlowExpenses = {
+    getExpenses: () => allExpenses,
+    getFilteredExpenses: () => filteredExpenses,
+    refresh: () => {
+        applyFilters();
+        updateStats();
+    }
+};

@@ -223,26 +223,17 @@
             refreshBtn.addEventListener('click', () => {
                 const icon = refreshBtn.querySelector('i');
                 if (icon) {
-                    icon.style.animation = 'spin 0.5s linear';
+                    icon.classList.add('fa-spin');
                     setTimeout(() => {
-                        icon.style.animation = '';
-                    }, 500);
+                        icon.classList.remove('fa-spin');
+                    }, 1000);
                 }
-                refreshDashboard();
+                refreshAllModules();
             });
         }
 
-        const searchInput = document.getElementById('dashboardSearch');
-        if (searchInput) {
-            searchInput.addEventListener('input', (event) => {
-                const term = event.target.value.toLowerCase();
-                document.querySelectorAll('.stat-card').forEach(card => {
-                    const label = card.querySelector('.stat-label');
-                    const matches = label && label.textContent.toLowerCase().includes(term);
-                    card.style.display = matches ? 'flex' : 'none';
-                });
-            });
-        }
+        // Global Search Setup
+        initGlobalSearch();
 
         document.querySelectorAll('.quick-action-btn').forEach(button => {
             button.addEventListener('click', () => {
@@ -258,6 +249,390 @@
                 setActiveModule(targetModule);
             });
         }
+    }
+
+    // ============================================
+    // Global Search Functionality
+    // ============================================
+    let searchDebounceTimer = null;
+    let globalSearchData = {
+        inventory: [],
+        sales: [],
+        customers: [],
+        orders: [],
+        suppliers: [],
+        expenses: []
+    };
+
+    function initGlobalSearch() {
+        const searchInput = document.getElementById('dashboardSearch');
+        const clearBtn = document.getElementById('clearGlobalSearch');
+        const resultsContainer = document.getElementById('globalSearchResults');
+
+        if (searchInput) {
+            searchInput.addEventListener('input', (event) => {
+                const term = event.target.value.trim();
+                
+                // Show/hide clear button
+                if (clearBtn) {
+                    clearBtn.style.display = term.length > 0 ? 'flex' : 'none';
+                }
+
+                // Clear existing timer
+                if (searchDebounceTimer) {
+                    clearTimeout(searchDebounceTimer);
+                }
+
+                if (term.length < 2) {
+                    hideSearchResults();
+                    return;
+                }
+
+                // Debounce search
+                searchDebounceTimer = setTimeout(() => {
+                    performGlobalSearch(term);
+                }, 300);
+            });
+
+            searchInput.addEventListener('focus', () => {
+                const term = searchInput.value.trim();
+                if (term.length >= 2) {
+                    showSearchResults();
+                }
+            });
+
+            // Close results when clicking outside
+            document.addEventListener('click', (event) => {
+                const container = document.querySelector('.global-search-container');
+                if (container && !container.contains(event.target)) {
+                    hideSearchResults();
+                }
+            });
+        }
+
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => {
+                if (searchInput) {
+                    searchInput.value = '';
+                    clearBtn.style.display = 'none';
+                }
+                hideSearchResults();
+            });
+        }
+    }
+
+    async function performGlobalSearch(term) {
+        const resultsContainer = document.getElementById('globalSearchResults');
+        const loadingEl = document.getElementById('searchResultsLoading');
+        const emptyEl = document.getElementById('searchResultsEmpty');
+        const contentEl = document.getElementById('searchResultsContent');
+
+        if (!resultsContainer) return;
+
+        // Show loading state
+        showSearchResults();
+        if (loadingEl) loadingEl.style.display = 'flex';
+        if (emptyEl) emptyEl.style.display = 'none';
+        if (contentEl) contentEl.innerHTML = '';
+
+        try {
+            const results = await searchAllCollections(term.toLowerCase());
+            
+            if (loadingEl) loadingEl.style.display = 'none';
+
+            const totalResults = Object.values(results).reduce((sum, arr) => sum + arr.length, 0);
+
+            if (totalResults === 0) {
+                if (emptyEl) emptyEl.style.display = 'flex';
+                return;
+            }
+
+            renderSearchResults(results, contentEl);
+        } catch (error) {
+            console.error('Global search error:', error);
+            if (loadingEl) loadingEl.style.display = 'none';
+            if (emptyEl) {
+                emptyEl.style.display = 'flex';
+                emptyEl.querySelector('span').textContent = 'Error searching. Please try again.';
+            }
+        }
+    }
+
+    async function searchAllCollections(term) {
+        const results = {
+            inventory: [],
+            sales: [],
+            customers: [],
+            orders: [],
+            suppliers: [],
+            expenses: []
+        };
+
+        // Search Inventory - Access from PharmaFlow state if available
+        if (window.PharmaFlowInventory && window.PharmaFlowInventory.getInventory) {
+            const inventoryData = window.PharmaFlowInventory.getInventory();
+            results.inventory = inventoryData.filter(item => 
+                (item.name && item.name.toLowerCase().includes(term)) ||
+                (item.category && item.category.toLowerCase().includes(term)) ||
+                (item.barcode && item.barcode.toLowerCase().includes(term)) ||
+                (item.manufacturer && item.manufacturer.toLowerCase().includes(term))
+            ).slice(0, 5);
+        }
+
+        // Search Sales
+        if (window.PharmaFlowSales && window.PharmaFlowSales.getSales) {
+            const salesData = window.PharmaFlowSales.getSales();
+            results.sales = salesData.filter(sale => 
+                (sale.id && sale.id.toLowerCase().includes(term)) ||
+                (sale.customer && sale.customer.toLowerCase().includes(term)) ||
+                (sale.receiptNumber && sale.receiptNumber.toLowerCase().includes(term)) ||
+                (sale.paymentMethod && sale.paymentMethod.toLowerCase().includes(term))
+            ).slice(0, 5);
+        }
+
+        // Search Customers
+        if (window.PharmaFlowCustomers && window.PharmaFlowCustomers.getCustomers) {
+            const customersData = window.PharmaFlowCustomers.getCustomers();
+            results.customers = customersData.filter(customer => 
+                (customer.name && customer.name.toLowerCase().includes(term)) ||
+                (customer.phone && customer.phone.toLowerCase().includes(term)) ||
+                (customer.email && customer.email.toLowerCase().includes(term))
+            ).slice(0, 5);
+        }
+
+        // Search Orders
+        if (window.PharmaFlowOrders && window.PharmaFlowOrders.getOrders) {
+            const ordersData = window.PharmaFlowOrders.getOrders();
+            results.orders = ordersData.filter(order => 
+                (order.id && order.id.toLowerCase().includes(term)) ||
+                (order.orderNumber && order.orderNumber.toLowerCase().includes(term)) ||
+                (order.supplier && order.supplier.toLowerCase().includes(term)) ||
+                (order.status && order.status.toLowerCase().includes(term))
+            ).slice(0, 5);
+        }
+
+        // Search Suppliers
+        if (window.PharmaFlowSuppliers && window.PharmaFlowSuppliers.getSuppliers) {
+            const suppliersData = window.PharmaFlowSuppliers.getSuppliers();
+            results.suppliers = suppliersData.filter(supplier => 
+                (supplier.name && supplier.name.toLowerCase().includes(term)) ||
+                (supplier.contact && supplier.contact.toLowerCase().includes(term)) ||
+                (supplier.phone && supplier.phone.toLowerCase().includes(term)) ||
+                (supplier.email && supplier.email.toLowerCase().includes(term))
+            ).slice(0, 5);
+        }
+
+        // Search Expenses
+        if (window.PharmaFlowExpenses && window.PharmaFlowExpenses.getExpenses) {
+            const expensesData = window.PharmaFlowExpenses.getExpenses();
+            results.expenses = expensesData.filter(expense => 
+                (expense.description && expense.description.toLowerCase().includes(term)) ||
+                (expense.category && expense.category.toLowerCase().includes(term)) ||
+                (expense.payee && expense.payee.toLowerCase().includes(term))
+            ).slice(0, 5);
+        }
+
+        return results;
+    }
+
+    function renderSearchResults(results, container) {
+        if (!container) return;
+
+        let html = '';
+
+        // Inventory Results
+        if (results.inventory.length > 0) {
+            html += renderResultSection('Inventory', 'fas fa-boxes', 'inventory-view', results.inventory, (item) => ({
+                title: item.name || 'Unknown Item',
+                subtitle: `${item.category || 'No category'} • Qty: ${item.quantity || 0}`,
+                badge: item.quantity > 0 ? 'In Stock' : 'Out of Stock',
+                badgeClass: item.quantity > 0 ? 'success' : 'danger'
+            }));
+        }
+
+        // Sales Results
+        if (results.sales.length > 0) {
+            html += renderResultSection('Sales', 'fas fa-receipt', 'pharmacy-sales', results.sales, (sale) => ({
+                title: sale.receiptNumber || `Sale #${sale.id?.slice(-6) || 'N/A'}`,
+                subtitle: `${sale.customer || 'Walk-in'} • ${formatCurrency(sale.total || sale.grandTotal || 0)}`,
+                badge: sale.paymentMethod || 'Cash',
+                badgeClass: 'primary'
+            }));
+        }
+
+        // Customers Results
+        if (results.customers.length > 0) {
+            html += renderResultSection('Customers', 'fas fa-users', 'customers-manage', results.customers, (customer) => ({
+                title: customer.name || 'Unknown Customer',
+                subtitle: customer.phone || customer.email || 'No contact info',
+                badge: customer.status || 'Active',
+                badgeClass: customer.status === 'Active' ? 'success' : 'warning'
+            }));
+        }
+
+        // Orders Results
+        if (results.orders.length > 0) {
+            html += renderResultSection('Orders', 'fas fa-shopping-cart', 'orders-view', results.orders, (order) => ({
+                title: order.orderNumber || `Order #${order.id?.slice(-6) || 'N/A'}`,
+                subtitle: order.supplier || 'Unknown Supplier',
+                badge: order.status || 'Pending',
+                badgeClass: order.status === 'Completed' ? 'success' : order.status === 'Pending' ? 'warning' : 'primary'
+            }));
+        }
+
+        // Suppliers Results
+        if (results.suppliers.length > 0) {
+            html += renderResultSection('Suppliers', 'fas fa-truck', 'orders-supplier', results.suppliers, (supplier) => ({
+                title: supplier.name || 'Unknown Supplier',
+                subtitle: supplier.phone || supplier.email || 'No contact info',
+                badge: supplier.status || 'Active',
+                badgeClass: supplier.status === 'Active' ? 'success' : 'warning'
+            }));
+        }
+
+        // Expenses Results
+        if (results.expenses.length > 0) {
+            html += renderResultSection('Expenses', 'fas fa-money-bill-wave', 'expenses-manage', results.expenses, (expense) => ({
+                title: expense.description || 'Unknown Expense',
+                subtitle: `${expense.category || 'General'} • ${formatCurrency(expense.amount || 0)}`,
+                badge: expense.status || 'Paid',
+                badgeClass: expense.status === 'Paid' ? 'success' : 'warning'
+            }));
+        }
+
+        container.innerHTML = html;
+
+        // Add click handlers for result items
+        container.querySelectorAll('.search-result-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const module = item.dataset.module;
+                if (module) {
+                    setActiveModule(module);
+                    hideSearchResults();
+                    const searchInput = document.getElementById('dashboardSearch');
+                    if (searchInput) searchInput.value = '';
+                    const clearBtn = document.getElementById('clearGlobalSearch');
+                    if (clearBtn) clearBtn.style.display = 'none';
+                }
+            });
+        });
+    }
+
+    function renderResultSection(title, icon, module, items, getItemData) {
+        let html = `
+            <div class="search-result-section">
+                <div class="search-result-header">
+                    <i class="${icon}"></i>
+                    <span>${title}</span>
+                    <span class="result-count">${items.length}</span>
+                </div>
+                <div class="search-result-items">
+        `;
+
+        items.forEach(item => {
+            const data = getItemData(item);
+            html += `
+                <div class="search-result-item" data-module="${module}">
+                    <div class="result-info">
+                        <div class="result-title">${data.title}</div>
+                        <div class="result-subtitle">${data.subtitle}</div>
+                    </div>
+                    <span class="result-badge ${data.badgeClass}">${data.badge}</span>
+                </div>
+            `;
+        });
+
+        html += `
+                </div>
+            </div>
+        `;
+
+        return html;
+    }
+
+    function showSearchResults() {
+        const resultsContainer = document.getElementById('globalSearchResults');
+        if (resultsContainer) {
+            resultsContainer.style.display = 'block';
+        }
+    }
+
+    function hideSearchResults() {
+        const resultsContainer = document.getElementById('globalSearchResults');
+        if (resultsContainer) {
+            resultsContainer.style.display = 'none';
+        }
+    }
+
+    // ============================================
+    // Refresh All Modules
+    // ============================================
+    function refreshAllModules() {
+        console.info('PharmaFlow: Refreshing all modules...');
+        
+        // Refresh Dashboard
+        if (window.PharmaFlowDashboard && window.PharmaFlowDashboard.refresh) {
+            window.PharmaFlowDashboard.refresh();
+        }
+
+        // Refresh Inventory
+        if (window.PharmaFlowInventory && window.PharmaFlowInventory.refresh) {
+            window.PharmaFlowInventory.refresh();
+        }
+
+        // Refresh Sales
+        if (window.PharmaFlowSales && window.PharmaFlowSales.refresh) {
+            window.PharmaFlowSales.refresh();
+        }
+
+        // Refresh Customers
+        if (window.PharmaFlowCustomers && window.PharmaFlowCustomers.refresh) {
+            window.PharmaFlowCustomers.refresh();
+        }
+
+        // Refresh Orders
+        if (window.PharmaFlowOrders && window.PharmaFlowOrders.refresh) {
+            window.PharmaFlowOrders.refresh();
+        }
+
+        // Refresh Suppliers
+        if (window.PharmaFlowSuppliers && window.PharmaFlowSuppliers.refresh) {
+            window.PharmaFlowSuppliers.refresh();
+        }
+
+        // Refresh Expenses
+        if (window.PharmaFlowExpenses && window.PharmaFlowExpenses.refresh) {
+            window.PharmaFlowExpenses.refresh();
+        }
+
+        // Refresh Wholesale
+        if (window.PharmaFlowWholesale && window.PharmaFlowWholesale.refresh) {
+            window.PharmaFlowWholesale.refresh();
+        }
+
+        // Show success notification
+        showNotification('All modules refreshed successfully!', 'success');
+    }
+
+    function showNotification(message, type = 'info') {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `global-notification ${type}`;
+        notification.innerHTML = `
+            <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
+            <span>${message}</span>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Animate in
+        setTimeout(() => notification.classList.add('show'), 10);
+        
+        // Remove after 3 seconds
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
     }
 
     function refreshDashboard() {

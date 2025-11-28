@@ -1873,4 +1873,10 @@ import {
         cleanup
     };
 
+    // Also expose as PharmaFlowInventory for global search compatibility
+    window.PharmaFlowInventory = {
+        getInventory: () => state.inventory,
+        refresh: refreshData
+    };
+
 })(window, document);

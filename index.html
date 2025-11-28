@@ -290,15 +290,15 @@
                                 </div>
                             </div>
                             <div class="dropdown-body">
-                                <a href="#" class="dropdown-item">
+                                <a href="#" class="dropdown-item" onclick="openSettings('profile'); return false;">
                                     <i class="fas fa-user-circle"></i>
                                     <span>My Profile</span>
                                 </a>
-                                <a href="#" class="dropdown-item">
+                                <a href="#" class="dropdown-item" onclick="openSettings('account'); return false;">
                                     <i class="fas fa-cog"></i>
                                     <span>Account Settings</span>
                                 </a>
-                                <a href="#" class="dropdown-item">
+                                <a href="#" class="dropdown-item" onclick="openSettings('security'); return false;">
                                     <i class="fas fa-key"></i>
                                     <span>Change Password</span>
                                 </a>
@@ -325,13 +325,29 @@
                                 <p>Overview of your pharmacy operations</p>
                             </div>
                             <div class="dashboard-controls">
-                                <div class="search-bar">
-                                    <i class="fas fa-search"></i>
-                                    <input type="text" id="dashboardSearch" placeholder="Search dashboard...">
+                                <div class="global-search-container">
+                                    <div class="search-bar">
+                                        <i class="fas fa-search"></i>
+                                        <input type="text" id="dashboardSearch" placeholder="Global search: inventory, sales, customers, orders..." autocomplete="off">
+                                        <button class="search-clear-btn" id="clearGlobalSearch" style="display: none;">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                    <div class="global-search-results" id="globalSearchResults" style="display: none;">
+                                        <div class="search-results-loading" id="searchResultsLoading" style="display: none;">
+                                            <i class="fas fa-spinner fa-spin"></i>
+                                            <span>Searching...</span>
+                                        </div>
+                                        <div class="search-results-empty" id="searchResultsEmpty" style="display: none;">
+                                            <i class="fas fa-search"></i>
+                                            <span>No results found</span>
+                                        </div>
+                                        <div class="search-results-content" id="searchResultsContent"></div>
+                                    </div>
                                 </div>
-                                <button class="refresh-btn" id="refreshDashboard">
+                                <button class="refresh-btn" id="refreshDashboard" title="Refresh all modules">
                                     <i class="fas fa-sync-alt"></i>
-                                    <span>Refresh</span>
+                                    <span>Refresh All</span>
                                 </button>
                             </div>
                         </div>
@@ -3905,14 +3921,480 @@
                 <!-- Settings Module -->
                 <div class="module-content" id="module-settings">
                     <div class="module-header">
-                        <h1>Settings</h1>
-                        <p>Configure system preferences</p>
+                        <div class="set-header-text">
+                            <h1>Settings</h1>
+                            <p>Configure your profile and system preferences</p>
+                        </div>
+                        <div class="set-header-actions">
+                            <button class="set-save-btn" onclick="saveAllSettings()">
+                                <i class="fas fa-save"></i> Save Changes
+                            </button>
+                        </div>
                     </div>
                     <div class="module-body">
-                        <div class="placeholder-content">
-                            <i class="fas fa-cog"></i>
-                            <h2>Settings Module</h2>
-                            <p>This module is ready for future implementation.</p>
+                        <div class="set-layout">
+                            <!-- Settings Sidebar -->
+                            <div class="set-sidebar">
+                                <nav class="set-nav">
+                                    <button class="set-nav-item active" data-section="profile" onclick="showSettingsSection('profile')">
+                                        <i class="fas fa-user-circle"></i>
+                                        <span>My Profile</span>
+                                    </button>
+                                    <button class="set-nav-item" data-section="account" onclick="showSettingsSection('account')">
+                                        <i class="fas fa-cog"></i>
+                                        <span>Account Settings</span>
+                                    </button>
+                                    <button class="set-nav-item" data-section="security" onclick="showSettingsSection('security')">
+                                        <i class="fas fa-shield-alt"></i>
+                                        <span>Security</span>
+                                    </button>
+                                    <button class="set-nav-item" data-section="notifications" onclick="showSettingsSection('notifications')">
+                                        <i class="fas fa-bell"></i>
+                                        <span>Notifications</span>
+                                    </button>
+                                    <button class="set-nav-item" data-section="appearance" onclick="showSettingsSection('appearance')">
+                                        <i class="fas fa-palette"></i>
+                                        <span>Appearance</span>
+                                    </button>
+                                    <button class="set-nav-item" data-section="business" onclick="showSettingsSection('business')">
+                                        <i class="fas fa-store"></i>
+                                        <span>Business Info</span>
+                                    </button>
+                                    <button class="set-nav-item" data-section="system" onclick="showSettingsSection('system')">
+                                        <i class="fas fa-server"></i>
+                                        <span>System</span>
+                                    </button>
+                                </nav>
+                            </div>
+
+                            <!-- Settings Content -->
+                            <div class="set-content">
+                                <!-- Profile Section -->
+                                <div class="set-section active" id="set-profile">
+                                    <div class="set-section-header">
+                                        <h2><i class="fas fa-user-circle"></i> My Profile</h2>
+                                        <p>Manage your personal information</p>
+                                    </div>
+                                    <div class="set-card">
+                                        <div class="set-profile-header">
+                                            <div class="set-avatar-wrapper">
+                                                <div class="set-avatar">
+                                                    <i class="fas fa-user"></i>
+                                                </div>
+                                                <button class="set-avatar-edit">
+                                                    <i class="fas fa-camera"></i>
+                                                </button>
+                                            </div>
+                                            <div class="set-profile-info">
+                                                <h3 id="setProfileName">Administrator</h3>
+                                                <p id="setProfileRole">System Admin</p>
+                                            </div>
+                                        </div>
+                                        <div class="set-form-grid">
+                                            <div class="set-form-group">
+                                                <label>First Name</label>
+                                                <input type="text" id="setFirstName" value="Admin" placeholder="Enter first name">
+                                            </div>
+                                            <div class="set-form-group">
+                                                <label>Last Name</label>
+                                                <input type="text" id="setLastName" value="User" placeholder="Enter last name">
+                                            </div>
+                                            <div class="set-form-group">
+                                                <label>Email Address</label>
+                                                <input type="email" id="setEmail" value="admin@pharmaflow.com" placeholder="Enter email">
+                                            </div>
+                                            <div class="set-form-group">
+                                                <label>Phone Number</label>
+                                                <input type="tel" id="setPhone" value="+254 700 000 000" placeholder="Enter phone">
+                                            </div>
+                                            <div class="set-form-group set-full-width">
+                                                <label>Bio</label>
+                                                <textarea id="setBio" rows="3" placeholder="Tell us about yourself">PharmFlow System Administrator</textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Account Settings Section -->
+                                <div class="set-section" id="set-account">
+                                    <div class="set-section-header">
+                                        <h2><i class="fas fa-cog"></i> Account Settings</h2>
+                                        <p>Manage your account preferences</p>
+                                    </div>
+                                    <div class="set-card">
+                                        <h4>Account Information</h4>
+                                        <div class="set-form-grid">
+                                            <div class="set-form-group">
+                                                <label>Username</label>
+                                                <input type="text" id="setUsername" value="admin" placeholder="Username">
+                                            </div>
+                                            <div class="set-form-group">
+                                                <label>Role</label>
+                                                <select id="setRole">
+                                                    <option value="admin" selected>Administrator</option>
+                                                    <option value="manager">Manager</option>
+                                                    <option value="pharmacist">Pharmacist</option>
+                                                    <option value="cashier">Cashier</option>
+                                                </select>
+                                            </div>
+                                            <div class="set-form-group">
+                                                <label>Language</label>
+                                                <select id="setLanguage">
+                                                    <option value="en" selected>English</option>
+                                                    <option value="sw">Swahili</option>
+                                                </select>
+                                            </div>
+                                            <div class="set-form-group">
+                                                <label>Timezone</label>
+                                                <select id="setTimezone">
+                                                    <option value="Africa/Nairobi" selected>East Africa Time (EAT)</option>
+                                                    <option value="UTC">UTC</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="set-card set-danger-zone">
+                                        <h4>Danger Zone</h4>
+                                        <p>Irreversible actions</p>
+                                        <div class="set-danger-actions">
+                                            <button class="set-danger-btn" onclick="deactivateAccount()">
+                                                <i class="fas fa-user-slash"></i> Deactivate Account
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Security Section -->
+                                <div class="set-section" id="set-security">
+                                    <div class="set-section-header">
+                                        <h2><i class="fas fa-shield-alt"></i> Security</h2>
+                                        <p>Manage password and security settings</p>
+                                    </div>
+                                    <div class="set-card">
+                                        <h4>Change Password</h4>
+                                        <div class="set-form-stack">
+                                            <div class="set-form-group">
+                                                <label>Current Password</label>
+                                                <div class="set-password-input">
+                                                    <input type="password" id="setCurrentPassword" placeholder="Enter current password">
+                                                    <button type="button" class="set-toggle-password" onclick="togglePasswordVisibility(this)">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="set-form-group">
+                                                <label>New Password</label>
+                                                <div class="set-password-input">
+                                                    <input type="password" id="setNewPassword" placeholder="Enter new password">
+                                                    <button type="button" class="set-toggle-password" onclick="togglePasswordVisibility(this)">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                </div>
+                                                <div class="set-password-strength" id="setPasswordStrength"></div>
+                                            </div>
+                                            <div class="set-form-group">
+                                                <label>Confirm New Password</label>
+                                                <div class="set-password-input">
+                                                    <input type="password" id="setConfirmPassword" placeholder="Confirm new password">
+                                                    <button type="button" class="set-toggle-password" onclick="togglePasswordVisibility(this)">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <button class="set-btn-primary" onclick="changePassword()">
+                                                <i class="fas fa-key"></i> Update Password
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="set-card">
+                                        <h4>Two-Factor Authentication</h4>
+                                        <div class="set-toggle-row">
+                                            <div class="set-toggle-info">
+                                                <span>Enable 2FA</span>
+                                                <p>Add an extra layer of security to your account</p>
+                                            </div>
+                                            <label class="set-toggle">
+                                                <input type="checkbox" id="set2FA">
+                                                <span class="set-toggle-slider"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="set-card">
+                                        <h4>Login Sessions</h4>
+                                        <div class="set-session-list">
+                                            <div class="set-session-item set-current">
+                                                <div class="set-session-icon">
+                                                    <i class="fas fa-desktop"></i>
+                                                </div>
+                                                <div class="set-session-info">
+                                                    <span>Current Session</span>
+                                                    <p>Windows • Chrome • Nairobi, Kenya</p>
+                                                </div>
+                                                <span class="set-session-badge">Active</span>
+                                            </div>
+                                        </div>
+                                        <button class="set-btn-outline" onclick="logoutAllSessions()">
+                                            <i class="fas fa-sign-out-alt"></i> Logout All Other Sessions
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Notifications Section -->
+                                <div class="set-section" id="set-notifications">
+                                    <div class="set-section-header">
+                                        <h2><i class="fas fa-bell"></i> Notifications</h2>
+                                        <p>Configure how you receive notifications</p>
+                                    </div>
+                                    <div class="set-card">
+                                        <h4>Email Notifications</h4>
+                                        <div class="set-toggle-list">
+                                            <div class="set-toggle-row">
+                                                <div class="set-toggle-info">
+                                                    <span>Low Stock Alerts</span>
+                                                    <p>Get notified when inventory is running low</p>
+                                                </div>
+                                                <label class="set-toggle">
+                                                    <input type="checkbox" id="setNotifyLowStock" checked>
+                                                    <span class="set-toggle-slider"></span>
+                                                </label>
+                                            </div>
+                                            <div class="set-toggle-row">
+                                                <div class="set-toggle-info">
+                                                    <span>Expiry Alerts</span>
+                                                    <p>Get notified about expiring products</p>
+                                                </div>
+                                                <label class="set-toggle">
+                                                    <input type="checkbox" id="setNotifyExpiry" checked>
+                                                    <span class="set-toggle-slider"></span>
+                                                </label>
+                                            </div>
+                                            <div class="set-toggle-row">
+                                                <div class="set-toggle-info">
+                                                    <span>Daily Sales Summary</span>
+                                                    <p>Receive daily sales report via email</p>
+                                                </div>
+                                                <label class="set-toggle">
+                                                    <input type="checkbox" id="setNotifySales">
+                                                    <span class="set-toggle-slider"></span>
+                                                </label>
+                                            </div>
+                                            <div class="set-toggle-row">
+                                                <div class="set-toggle-info">
+                                                    <span>New Orders</span>
+                                                    <p>Get notified about new wholesale orders</p>
+                                                </div>
+                                                <label class="set-toggle">
+                                                    <input type="checkbox" id="setNotifyOrders" checked>
+                                                    <span class="set-toggle-slider"></span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="set-card">
+                                        <h4>System Notifications</h4>
+                                        <div class="set-toggle-list">
+                                            <div class="set-toggle-row">
+                                                <div class="set-toggle-info">
+                                                    <span>Sound Alerts</span>
+                                                    <p>Play sound for important notifications</p>
+                                                </div>
+                                                <label class="set-toggle">
+                                                    <input type="checkbox" id="setNotifySound" checked>
+                                                    <span class="set-toggle-slider"></span>
+                                                </label>
+                                            </div>
+                                            <div class="set-toggle-row">
+                                                <div class="set-toggle-info">
+                                                    <span>Desktop Notifications</span>
+                                                    <p>Show browser notifications</p>
+                                                </div>
+                                                <label class="set-toggle">
+                                                    <input type="checkbox" id="setNotifyDesktop">
+                                                    <span class="set-toggle-slider"></span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Appearance Section -->
+                                <div class="set-section" id="set-appearance">
+                                    <div class="set-section-header">
+                                        <h2><i class="fas fa-palette"></i> Appearance</h2>
+                                        <p>Customize how PharmFlow looks</p>
+                                    </div>
+                                    <div class="set-card">
+                                        <h4>Theme</h4>
+                                        <div class="set-theme-options">
+                                            <label class="set-theme-option">
+                                                <input type="radio" name="theme" value="light" checked>
+                                                <div class="set-theme-card set-theme-light">
+                                                    <div class="set-theme-preview">
+                                                        <div class="set-theme-sidebar"></div>
+                                                        <div class="set-theme-content"></div>
+                                                    </div>
+                                                    <span>Light</span>
+                                                </div>
+                                            </label>
+                                            <label class="set-theme-option">
+                                                <input type="radio" name="theme" value="dark">
+                                                <div class="set-theme-card set-theme-dark">
+                                                    <div class="set-theme-preview">
+                                                        <div class="set-theme-sidebar"></div>
+                                                        <div class="set-theme-content"></div>
+                                                    </div>
+                                                    <span>Dark</span>
+                                                </div>
+                                            </label>
+                                            <label class="set-theme-option">
+                                                <input type="radio" name="theme" value="system">
+                                                <div class="set-theme-card set-theme-system">
+                                                    <div class="set-theme-preview">
+                                                        <div class="set-theme-sidebar"></div>
+                                                        <div class="set-theme-content"></div>
+                                                    </div>
+                                                    <span>System</span>
+                                                </div>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="set-card">
+                                        <h4>Display Options</h4>
+                                        <div class="set-toggle-list">
+                                            <div class="set-toggle-row">
+                                                <div class="set-toggle-info">
+                                                    <span>Compact Mode</span>
+                                                    <p>Reduce spacing for more content</p>
+                                                </div>
+                                                <label class="set-toggle">
+                                                    <input type="checkbox" id="setCompactMode">
+                                                    <span class="set-toggle-slider"></span>
+                                                </label>
+                                            </div>
+                                            <div class="set-toggle-row">
+                                                <div class="set-toggle-info">
+                                                    <span>Sidebar Collapsed</span>
+                                                    <p>Start with collapsed sidebar</p>
+                                                </div>
+                                                <label class="set-toggle">
+                                                    <input type="checkbox" id="setSidebarCollapsed">
+                                                    <span class="set-toggle-slider"></span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Business Info Section -->
+                                <div class="set-section" id="set-business">
+                                    <div class="set-section-header">
+                                        <h2><i class="fas fa-store"></i> Business Information</h2>
+                                        <p>Configure your pharmacy details</p>
+                                    </div>
+                                    <div class="set-card">
+                                        <h4>Pharmacy Details</h4>
+                                        <div class="set-form-grid">
+                                            <div class="set-form-group set-full-width">
+                                                <label>Pharmacy Name</label>
+                                                <input type="text" id="setBizName" value="PharmFlow Pharmacy" placeholder="Pharmacy name">
+                                            </div>
+                                            <div class="set-form-group">
+                                                <label>Phone Number</label>
+                                                <input type="tel" id="setBizPhone" value="+254 700 000 000" placeholder="Business phone">
+                                            </div>
+                                            <div class="set-form-group">
+                                                <label>Email</label>
+                                                <input type="email" id="setBizEmail" value="info@pharmaflow.com" placeholder="Business email">
+                                            </div>
+                                            <div class="set-form-group set-full-width">
+                                                <label>Address</label>
+                                                <textarea id="setBizAddress" rows="2" placeholder="Physical address">Nairobi, Kenya</textarea>
+                                            </div>
+                                            <div class="set-form-group">
+                                                <label>Registration Number</label>
+                                                <input type="text" id="setBizRegNo" placeholder="Business reg. number">
+                                            </div>
+                                            <div class="set-form-group">
+                                                <label>Tax PIN</label>
+                                                <input type="text" id="setBizTaxPin" placeholder="KRA PIN">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="set-card">
+                                        <h4>Receipt Settings</h4>
+                                        <div class="set-form-grid">
+                                            <div class="set-form-group set-full-width">
+                                                <label>Receipt Header</label>
+                                                <input type="text" id="setReceiptHeader" value="Thank you for shopping with us!" placeholder="Receipt header message">
+                                            </div>
+                                            <div class="set-form-group set-full-width">
+                                                <label>Receipt Footer</label>
+                                                <input type="text" id="setReceiptFooter" value="Visit us again!" placeholder="Receipt footer message">
+                                            </div>
+                                        </div>
+                                        <div class="set-toggle-row">
+                                            <div class="set-toggle-info">
+                                                <span>Print Logo on Receipt</span>
+                                                <p>Include pharmacy logo on printed receipts</p>
+                                            </div>
+                                            <label class="set-toggle">
+                                                <input type="checkbox" id="setReceiptLogo" checked>
+                                                <span class="set-toggle-slider"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- System Section -->
+                                <div class="set-section" id="set-system">
+                                    <div class="set-section-header">
+                                        <h2><i class="fas fa-server"></i> System</h2>
+                                        <p>System information and maintenance</p>
+                                    </div>
+                                    <div class="set-card">
+                                        <h4>System Information</h4>
+                                        <div class="set-info-grid">
+                                            <div class="set-info-item">
+                                                <span class="set-info-label">Version</span>
+                                                <span class="set-info-value">PharmFlow v1.0.0</span>
+                                            </div>
+                                            <div class="set-info-item">
+                                                <span class="set-info-label">Database</span>
+                                                <span class="set-info-value">Firebase Firestore</span>
+                                            </div>
+                                            <div class="set-info-item">
+                                                <span class="set-info-label">Last Sync</span>
+                                                <span class="set-info-value" id="setLastSync">Just now</span>
+                                            </div>
+                                            <div class="set-info-item">
+                                                <span class="set-info-label">Status</span>
+                                                <span class="set-info-value set-status-online"><i class="fas fa-circle"></i> Online</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="set-card">
+                                        <h4>Data Management</h4>
+                                        <div class="set-action-buttons">
+                                            <button class="set-btn-secondary" onclick="exportData()">
+                                                <i class="fas fa-download"></i> Export Data
+                                            </button>
+                                            <button class="set-btn-secondary" onclick="importData()">
+                                                <i class="fas fa-upload"></i> Import Data
+                                            </button>
+                                            <button class="set-btn-outline" onclick="clearCache()">
+                                                <i class="fas fa-broom"></i> Clear Cache
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="set-card set-danger-zone">
+                                        <h4>Reset System</h4>
+                                        <p>This will reset all settings to default values</p>
+                                        <button class="set-danger-btn" onclick="resetSettings()">
+                                            <i class="fas fa-undo"></i> Reset to Defaults
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -4388,6 +4870,7 @@
     <script type="module" src="js/manage-wholesale.js"></script>
     <script type="module" src="js/accounts.js"></script>
     <script type="module" src="js/reports.js"></script>
+    <script src="js/settings.js"></script>
     <script src="js/admin-panel.js"></script>
     <script src="js/app.js"></script>
 </body>
