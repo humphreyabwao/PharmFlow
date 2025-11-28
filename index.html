@@ -6,6 +6,10 @@
     <title>PharmaFlow - Pharmacy Management System</title>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- JsBarcode Library for barcode generation -->
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <!-- SheetJS Library for Excel file parsing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
     <div class="app-container">
@@ -1055,14 +1059,184 @@
                 <!-- View Inventory Module -->
                 <div class="module-content" id="module-inventory-view">
                     <div class="module-header">
-                        <h1>View Inventory</h1>
-                        <p>Browse and manage existing inventory items</p>
+                        <div class="module-header-content">
+                            <div>
+                                <h1>View Inventory</h1>
+                                <p>Browse and manage existing inventory items</p>
+                            </div>
+                            <div class="header-btn-group">
+                                <button class="add-inventory-btn" id="goToAddInventory">
+                                    <i class="fas fa-plus"></i>
+                                    Add New Item
+                                </button>
+                            </div>
+                        </div>
                     </div>
                     <div class="module-body">
-                        <div class="placeholder-content">
-                            <i class="fas fa-list"></i>
-                            <h2>View Inventory Module</h2>
-                            <p>This module is ready for future implementation.</p>
+                        <!-- Stats Cards -->
+                        <div class="inventory-stats">
+                            <div class="stat-card total">
+                                <div class="stat-icon">
+                                    <i class="fas fa-boxes"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <span class="stat-value" id="statTotalItems">0</span>
+                                    <span class="stat-label">Total Items</span>
+                                </div>
+                            </div>
+                            <div class="stat-card in-stock">
+                                <div class="stat-icon">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <span class="stat-value" id="statInStock">0</span>
+                                    <span class="stat-label">In Stock</span>
+                                </div>
+                            </div>
+                            <div class="stat-card low-stock">
+                                <div class="stat-icon">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <span class="stat-value" id="statLowStock">0</span>
+                                    <span class="stat-label">Low Stock</span>
+                                </div>
+                            </div>
+                            <div class="stat-card out-of-stock">
+                                <div class="stat-icon">
+                                    <i class="fas fa-times-circle"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <span class="stat-value" id="statOutOfStock">0</span>
+                                    <span class="stat-label">Out of Stock</span>
+                                </div>
+                            </div>
+                            <div class="stat-card expiring">
+                                <div class="stat-icon">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <span class="stat-value" id="statExpiring">0</span>
+                                    <span class="stat-label">Expiring Soon</span>
+                                </div>
+                            </div>
+                            <div class="stat-card value">
+                                <div class="stat-icon">
+                                    <i class="fas fa-money-bill-wave"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <span class="stat-value" id="statTotalValue">KSH 0</span>
+                                    <span class="stat-label">Total Value</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Search and Filters -->
+                        <div class="inventory-toolbar">
+                            <div class="search-box">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="inventorySearch" placeholder="Search by name, barcode, category...">
+                                <button class="clear-search" id="clearSearch" style="display: none;">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <div class="filter-group">
+                                <select id="filterCategory">
+                                    <option value="">All Categories</option>
+                                    <option value="tablets">Tablets</option>
+                                    <option value="capsules">Capsules</option>
+                                    <option value="syrups">Syrups</option>
+                                    <option value="injections">Injections</option>
+                                    <option value="ointments">Ointments</option>
+                                    <option value="drops">Drops</option>
+                                    <option value="medical-devices">Medical Devices</option>
+                                    <option value="supplements">Supplements</option>
+                                    <option value="first-aid">First Aid</option>
+                                    <option value="personal-care">Personal Care</option>
+                                    <option value="baby-care">Baby Care</option>
+                                    <option value="other">Other</option>
+                                </select>
+                                <select id="filterStatus">
+                                    <option value="">All Status</option>
+                                    <option value="in-stock">In Stock</option>
+                                    <option value="low-stock">Low Stock</option>
+                                    <option value="out-of-stock">Out of Stock</option>
+                                    <option value="near-expiry">Near Expiry</option>
+                                    <option value="expired">Expired</option>
+                                </select>
+                                <select id="sortBy">
+                                    <option value="name-asc">Name (A-Z)</option>
+                                    <option value="name-desc">Name (Z-A)</option>
+                                    <option value="quantity-asc">Quantity (Low-High)</option>
+                                    <option value="quantity-desc">Quantity (High-Low)</option>
+                                    <option value="expiry-asc">Expiry (Soonest)</option>
+                                    <option value="expiry-desc">Expiry (Latest)</option>
+                                    <option value="price-asc">Price (Low-High)</option>
+                                    <option value="price-desc">Price (High-Low)</option>
+                                </select>
+                            </div>
+                            <div class="toolbar-actions">
+                                <button class="toolbar-btn-text" id="bulkImportInventory">
+                                    <i class="fas fa-upload"></i>
+                                    Bulk Import
+                                </button>
+                                <button class="toolbar-btn" id="exportInventory" title="Export to CSV">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                                <button class="toolbar-btn" id="refreshInventory" title="Refresh">
+                                    <i class="fas fa-sync-alt" id="refreshIcon"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Inventory Table -->
+                        <div class="inventory-table-container">
+                            <table class="inventory-table" id="inventoryTable">
+                                <thead>
+                                    <tr>
+                                        <th class="col-name">Product Name</th>
+                                        <th class="col-category">Category</th>
+                                        <th class="col-barcode">Barcode</th>
+                                        <th class="col-quantity">Quantity</th>
+                                        <th class="col-price">Price</th>
+                                        <th class="col-expiry">Expiry Date</th>
+                                        <th class="col-status">Status</th>
+                                        <th class="col-actions">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="inventoryTableBody">
+                                    <!-- Dynamic rows will be inserted here -->
+                                </tbody>
+                            </table>
+                            <div class="table-empty" id="tableEmpty" style="display: none;">
+                                <i class="fas fa-inbox"></i>
+                                <h3>No Items Found</h3>
+                                <p>No inventory items match your search criteria.</p>
+                            </div>
+                            <div class="table-loading" id="tableLoading">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                <p>Loading inventory...</p>
+                            </div>
+                        </div>
+
+                        <!-- Pagination -->
+                        <div class="inventory-pagination">
+                            <div class="pagination-info">
+                                <span id="paginationInfo">Showing 0 of 0 items</span>
+                            </div>
+                            <div class="pagination-controls">
+                                <select id="itemsPerPage">
+                                    <option value="25">25 per page</option>
+                                    <option value="50" selected>50 per page</option>
+                                    <option value="100">100 per page</option>
+                                    <option value="250">250 per page</option>
+                                </select>
+                                <div class="pagination-buttons">
+                                    <button id="prevPage" disabled><i class="fas fa-chevron-left"></i></button>
+                                    <span id="pageNumbers"></span>
+                                    <button id="nextPage" disabled><i class="fas fa-chevron-right"></i></button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1070,14 +1244,200 @@
                 <!-- Add Inventory Module -->
                 <div class="module-content" id="module-inventory-add">
                     <div class="module-header">
-                        <h1>Add Inventory</h1>
-                        <p>Add new items to your inventory</p>
+                        <div class="module-header-content">
+                            <div>
+                                <h1>Add Inventory</h1>
+                                <p>Add new drugs and products to your inventory</p>
+                            </div>
+                            <div class="header-btn-group">
+                                <button class="scan-inventory-btn" id="scanInventoryBtn">
+                                    <i class="fas fa-barcode"></i>
+                                    Scan to Add
+                                </button>
+                                <button class="view-inventory-btn" id="viewInventoryBtn">
+                                    View Inventory
+                                </button>
+                            </div>
+                        </div>
                     </div>
                     <div class="module-body">
-                        <div class="placeholder-content">
-                            <i class="fas fa-plus-circle"></i>
-                            <h2>Add Inventory Module</h2>
-                            <p>This module is ready for future implementation.</p>
+                        <div class="inventory-form-container">
+                            <form id="addInventoryForm" class="clean-form">
+                                <!-- Basic Information -->
+                                <div class="clean-form-section">
+                                    <h3 class="clean-section-title">Basic Information</h3>
+                                    <div class="clean-form-row">
+                                        <div class="clean-form-group">
+                                            <label for="invItemName">Drug/Product Name *</label>
+                                            <input type="text" id="invItemName" placeholder="e.g., Paracetamol" required>
+                                        </div>
+                                        <div class="clean-form-group">
+                                            <label for="invGenericName">Generic Name</label>
+                                            <input type="text" id="invGenericName" placeholder="e.g., Acetaminophen">
+                                        </div>
+                                        <div class="clean-form-group">
+                                            <label for="invManufacturer">Manufacturer</label>
+                                            <input type="text" id="invManufacturer" placeholder="e.g., GSK, Pfizer">
+                                        </div>
+                                    </div>
+                                    <div class="clean-form-row">
+                                        <div class="clean-form-group">
+                                            <label for="invCategory">Category *</label>
+                                            <select id="invCategory" required>
+                                                <option value="">Select Category</option>
+                                                <option value="antibiotics">Antibiotics</option>
+                                                <option value="painkillers">Pain Relief / Analgesics</option>
+                                                <option value="antacids">Antacids & Digestive</option>
+                                                <option value="cardiovascular">Cardiovascular</option>
+                                                <option value="diabetes">Diabetes</option>
+                                                <option value="respiratory">Respiratory</option>
+                                                <option value="allergy">Allergy & Antihistamines</option>
+                                                <option value="supplements">Vitamins & Supplements</option>
+                                                <option value="skincare">Skincare & Dermatology</option>
+                                                <option value="first-aid">First Aid</option>
+                                                <option value="other">Other</option>
+                                            </select>
+                                        </div>
+                                        <div class="clean-form-group">
+                                            <label for="invDosageForm">Dosage Form *</label>
+                                            <select id="invDosageForm" required>
+                                                <option value="">Select Form</option>
+                                                <option value="tablet">Tablet</option>
+                                                <option value="capsule">Capsule</option>
+                                                <option value="syrup">Syrup</option>
+                                                <option value="injection">Injection</option>
+                                                <option value="cream">Cream/Ointment</option>
+                                                <option value="drops">Drops</option>
+                                                <option value="inhaler">Inhaler</option>
+                                                <option value="powder">Powder</option>
+                                                <option value="other">Other</option>
+                                            </select>
+                                        </div>
+                                        <div class="clean-form-group">
+                                            <label for="invStrength">Strength/Dosage</label>
+                                            <input type="text" id="invStrength" placeholder="e.g., 500mg, 10ml">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Stock & Pricing -->
+                                <div class="clean-form-section">
+                                    <h3 class="clean-section-title">Stock & Pricing</h3>
+                                    <div class="clean-form-row">
+                                        <div class="clean-form-group">
+                                            <label for="invQuantity">Quantity in Stock *</label>
+                                            <input type="number" id="invQuantity" placeholder="0" min="0" required>
+                                        </div>
+                                        <div class="clean-form-group">
+                                            <label for="invUnit">Unit of Measure</label>
+                                            <select id="invUnit">
+                                                <option value="pieces">Pieces</option>
+                                                <option value="strips">Strips</option>
+                                                <option value="bottles">Bottles</option>
+                                                <option value="boxes">Boxes</option>
+                                                <option value="packs">Packs</option>
+                                            </select>
+                                        </div>
+                                        <div class="clean-form-group">
+                                            <label for="invReorderLevel">Reorder Level</label>
+                                            <input type="number" id="invReorderLevel" placeholder="10" min="0" value="10">
+                                        </div>
+                                    </div>
+                                    <div class="clean-form-row">
+                                        <div class="clean-form-group">
+                                            <label for="invCostPrice">Cost Price (KSH) *</label>
+                                            <input type="number" id="invCostPrice" placeholder="0.00" min="0" step="0.01" required>
+                                        </div>
+                                        <div class="clean-form-group">
+                                            <label for="invSellingPrice">Selling Price (KSH) *</label>
+                                            <input type="number" id="invSellingPrice" placeholder="0.00" min="0" step="0.01" required>
+                                        </div>
+                                        <div class="clean-form-group">
+                                            <label>Profit Margin</label>
+                                            <div class="clean-profit-display" id="invProfitMargin">
+                                                <span class="margin-value">0%</span>
+                                                <span class="margin-amount">KSH 0.00</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Batch & Barcode -->
+                                <div class="clean-form-section">
+                                    <h3 class="clean-section-title">Batch & Barcode</h3>
+                                    <div class="clean-form-row">
+                                        <div class="clean-form-group">
+                                            <label for="invBatchNumber">Batch Number</label>
+                                            <input type="text" id="invBatchNumber" placeholder="e.g., BTH-2024-001">
+                                        </div>
+                                        <div class="clean-form-group">
+                                            <label for="invBarcode">Barcode/SKU</label>
+                                            <div class="clean-barcode-input">
+                                                <input type="text" id="invBarcode" readonly placeholder="Auto-generated">
+                                                <button type="button" class="clean-icon-btn" id="generateBarcodeBtn" title="Generate">
+                                                    <i class="fas fa-sync-alt"></i>
+                                                </button>
+                                                <button type="button" class="clean-icon-btn" id="printBarcodeBtn" title="Print">
+                                                    <i class="fas fa-print"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="clean-form-row">
+                                        <div class="clean-form-group">
+                                            <label for="invExpiryDate">Expiry Date *</label>
+                                            <input type="date" id="invExpiryDate" required>
+                                        </div>
+                                        <div class="clean-form-group">
+                                            <label for="invManufactureDate">Manufacture Date</label>
+                                            <input type="date" id="invManufactureDate">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Additional Info -->
+                                <div class="clean-form-section">
+                                    <h3 class="clean-section-title">Additional Info</h3>
+                                    <div class="clean-form-row">
+                                        <div class="clean-form-group">
+                                            <label for="invLocation">Storage Location</label>
+                                            <input type="text" id="invLocation" placeholder="e.g., Shelf A, Row 2">
+                                        </div>
+                                        <div class="clean-form-group">
+                                            <label for="invSupplier">Supplier</label>
+                                            <input type="text" id="invSupplier" placeholder="Supplier name">
+                                        </div>
+                                    </div>
+                                    <div class="clean-form-row">
+                                        <div class="clean-form-group full-width">
+                                            <label for="invDescription">Description/Notes</label>
+                                            <textarea id="invDescription" rows="2" placeholder="Additional notes..."></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="clean-form-row">
+                                        <div class="clean-form-group">
+                                            <label class="clean-checkbox">
+                                                <input type="checkbox" id="invPrescriptionRequired">
+                                                <span class="checkmark"></span>
+                                                Prescription Required
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Form Actions -->
+                                <div class="clean-form-actions">
+                                    <button type="button" class="clean-btn clean-btn-secondary" id="invCancelBtn">
+                                        Cancel
+                                    </button>
+                                    <button type="button" class="clean-btn clean-btn-outline" id="invSaveDraftBtn">
+                                        Save Draft
+                                    </button>
+                                    <button type="submit" class="clean-btn clean-btn-primary" id="invSubmitBtn">
+                                        Add to Inventory
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -1355,11 +1715,461 @@
         </div>
     </div>
 
+    <!-- Barcode Print Modal -->
+    <div class="sales-modal" id="barcodePrintModal">
+        <div class="sales-modal-content barcode-modal">
+            <div class="sales-modal-header">
+                <h3>
+                    <i class="fas fa-barcode"></i>
+                    Print Barcode
+                </h3>
+                <button class="sales-modal-close" id="closeBarcodeModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="sales-modal-body">
+                <!-- Barcode Preview -->
+                <div class="barcode-preview-section">
+                    <div class="barcode-preview-container">
+                        <div class="barcode-label-preview">
+                            <div class="barcode-product-name" id="barcodeProductName">Product Name</div>
+                            <svg id="barcodePreviewSvg"></svg>
+                            <div class="barcode-price-tag" id="barcodePriceTag">KSH 0.00</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Print Settings -->
+                <div class="barcode-settings">
+                    <h4 class="settings-title">
+                        <i class="fas fa-cog"></i>
+                        Print Settings
+                    </h4>
+                    <div class="setting-row">
+                        <div class="setting-group">
+                            <label for="barcodeCopies">Number of Copies</label>
+                            <input type="number" id="barcodeCopies" value="1" min="1" max="100">
+                        </div>
+                        <div class="setting-group">
+                            <label for="barcodeSize">Label Size</label>
+                            <select id="barcodeSize">
+                                <option value="small">Small (50mm x 25mm)</option>
+                                <option value="medium" selected>Medium (60mm x 30mm)</option>
+                                <option value="large">Large (80mm x 40mm)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="setting-row checkbox-row">
+                        <label class="checkbox-label setting-checkbox">
+                            <input type="checkbox" id="showProductName" checked>
+                            <span class="checkbox-custom"></span>
+                            <span>Show Product Name</span>
+                        </label>
+                        <label class="checkbox-label setting-checkbox">
+                            <input type="checkbox" id="showPrice" checked>
+                            <span class="checkbox-custom"></span>
+                            <span>Show Price</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="barcode-modal-footer">
+                <button class="barcode-btn barcode-btn-cancel" id="cancelBarcodePrint">
+                    <i class="fas fa-times"></i>
+                    <span>Cancel</span>
+                </button>
+                <button class="barcode-btn barcode-btn-print" id="confirmBarcodePrint">
+                    <i class="fas fa-print"></i>
+                    <span>Print Barcode</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Barcode Scanner Modal -->
+    <div class="sales-modal" id="barcodeScanModal">
+        <div class="sales-modal-content barcode-modal">
+            <div class="sales-modal-header">
+                <h3>
+                    <i class="fas fa-qrcode"></i>
+                    Scan Barcode
+                </h3>
+                <button class="sales-modal-close" id="closeScanModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="sales-modal-body">
+                <!-- Scanner Input Section -->
+                <div class="scanner-input-section">
+                    <div class="scanner-icon">
+                        <i class="fas fa-barcode"></i>
+                    </div>
+                    <p class="scanner-instruction">Scan a barcode or enter it manually below</p>
+                    <div class="scanner-input-wrapper">
+                        <input type="text" 
+                               id="scanBarcodeInput" 
+                               class="scanner-input" 
+                               placeholder="Enter or scan barcode..."
+                               autofocus>
+                        <button type="button" id="searchBarcodeBtn" class="scanner-search-btn">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Scan Result -->
+                <div class="scan-result" id="scanResult" style="display: none;">
+                    <div class="scan-result-found" id="scanResultFound" style="display: none;">
+                        <div class="scan-result-icon success">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <h4>Product Found!</h4>
+                        <div class="found-product-details">
+                            <p><strong>Name:</strong> <span id="foundProductName">-</span></p>
+                            <p><strong>Barcode:</strong> <span id="foundProductBarcode">-</span></p>
+                            <p><strong>Stock:</strong> <span id="foundProductStock">-</span></p>
+                        </div>
+                        <button type="button" id="editFoundProduct" class="scan-action-btn edit-btn">
+                            <i class="fas fa-edit"></i>
+                            Edit Product
+                        </button>
+                    </div>
+                    <div class="scan-result-notfound" id="scanResultNotFound" style="display: none;">
+                        <div class="scan-result-icon warning">
+                            <i class="fas fa-exclamation-circle"></i>
+                        </div>
+                        <h4>Product Not Found</h4>
+                        <p>No product with this barcode exists in inventory.</p>
+                        <button type="button" id="addNewWithBarcode" class="scan-action-btn add-btn">
+                            <i class="fas fa-plus"></i>
+                            Add as New Product
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="barcode-modal-footer">
+                <button class="barcode-btn barcode-btn-cancel" id="cancelScan">
+                    <i class="fas fa-times"></i>
+                    <span>Close</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bulk Import Modal -->
+    <div class="sales-modal" id="bulkImportModal">
+        <div class="sales-modal-content import-modal">
+            <div class="sales-modal-header">
+                <h3>
+                    <i class="fas fa-upload"></i>
+                    Bulk Import Inventory
+                </h3>
+                <button class="sales-modal-close" id="closeImportModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="sales-modal-body">
+                <!-- Upload Section -->
+                <div class="import-upload-section" id="importUploadSection">
+                    <div class="import-dropzone" id="importDropzone">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <h4>Drop Excel or CSV file here</h4>
+                        <p>or click to browse</p>
+                        <input type="file" id="importFileInput" accept=".csv,.xlsx,.xls" hidden>
+                    </div>
+                    <div class="import-template">
+                        <p>Need a template?</p>
+                        <button type="button" id="downloadTemplate">
+                            <i class="fas fa-download"></i>
+                            Download CSV Template
+                        </button>
+                    </div>
+                    <div class="import-instructions">
+                        <h5>File Format Requirements:</h5>
+                        <ul>
+                            <li><strong>Supported formats:</strong> Excel (.xlsx, .xls) or CSV (.csv)</li>
+                            <li><strong>Required columns:</strong> name, category, quantity, costPrice, sellingPrice</li>
+                            <li><strong>Optional columns:</strong> genericName, dosageForm, strength, manufacturer, unit, reorderLevel, batchNumber, expiryDate, manufactureDate, barcode, location, supplier, description, prescriptionRequired</li>
+                            <li>Date format: YYYY-MM-DD (e.g., 2025-12-31)</li>
+                            <li>First row must be column headers</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Preview Section -->
+                <div class="import-preview-section" id="importPreviewSection" style="display: none;">
+                    <div class="import-summary">
+                        <div class="summary-item valid">
+                            <i class="fas fa-check-circle"></i>
+                            <span id="validCount">0</span> Valid
+                        </div>
+                        <div class="summary-item errors">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span id="errorCount">0</span> Errors
+                        </div>
+                        <div class="summary-item total">
+                            <i class="fas fa-list"></i>
+                            <span id="totalCount">0</span> Total
+                        </div>
+                    </div>
+                    <div class="import-preview-table-container">
+                        <table class="import-preview-table">
+                            <thead id="importPreviewHead"></thead>
+                            <tbody id="importPreviewBody"></tbody>
+                        </table>
+                    </div>
+                    <div class="import-error-list" id="importErrorList" style="display: none;">
+                        <h5><i class="fas fa-exclamation-triangle"></i> Errors Found:</h5>
+                        <ul id="errorListItems"></ul>
+                    </div>
+                </div>
+
+                <!-- Progress Section -->
+                <div class="import-progress-section" id="importProgressSection" style="display: none;">
+                    <div class="progress-icon">
+                        <i class="fas fa-spinner fa-spin"></i>
+                    </div>
+                    <h4>Importing...</h4>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" id="importProgressBar"></div>
+                    </div>
+                    <p class="progress-text"><span id="importedCount">0</span> of <span id="totalImportCount">0</span> items imported</p>
+                </div>
+
+                <!-- Success Section -->
+                <div class="import-success-section" id="importSuccessSection" style="display: none;">
+                    <div class="success-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h4>Import Complete!</h4>
+                    <p><span id="successCount">0</span> items successfully imported</p>
+                </div>
+            </div>
+            <div class="import-modal-footer" id="importModalFooter">
+                <button class="import-btn import-btn-cancel" id="cancelImport">
+                    Cancel
+                </button>
+                <button class="import-btn import-btn-back" id="backToUpload" style="display: none;">
+                    <i class="fas fa-arrow-left"></i>
+                    Back
+                </button>
+                <button class="import-btn import-btn-import" id="startImport" style="display: none;" disabled>
+                    <i class="fas fa-upload"></i>
+                    Import <span id="importBtnCount">0</span> Items
+                </button>
+                <button class="import-btn import-btn-done" id="doneImport" style="display: none;">
+                    Done
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Item Modal -->
+    <div class="inventory-modal" id="viewItemModal">
+        <div class="inventory-modal-content">
+            <div class="inventory-modal-header">
+                <h3><i class="fas fa-eye"></i> Item Details</h3>
+                <button class="inventory-modal-close" id="closeViewModal">&times;</button>
+            </div>
+            <div class="inventory-modal-body" id="viewItemBody">
+                <!-- Content populated dynamically -->
+            </div>
+            <div class="inventory-modal-footer">
+                <button class="modal-btn modal-btn-secondary" id="closeViewBtn">Close</button>
+                <button class="modal-btn modal-btn-primary" id="editFromViewBtn">
+                    <i class="fas fa-edit"></i> Edit Item
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Item Modal -->
+    <div class="inventory-modal" id="editItemModal">
+        <div class="inventory-modal-content inventory-modal-large">
+            <div class="inventory-modal-header">
+                <h3><i class="fas fa-edit"></i> Edit Item</h3>
+                <button class="inventory-modal-close" id="closeEditModal">&times;</button>
+            </div>
+            <div class="inventory-modal-body">
+                <form id="editItemForm" class="edit-item-form">
+                    <input type="hidden" id="editItemId">
+                    
+                    <div class="edit-form-grid">
+                        <!-- Basic Info -->
+                        <div class="edit-form-section">
+                            <h4>Basic Information</h4>
+                            <div class="edit-form-row">
+                                <div class="edit-form-group">
+                                    <label for="editName">Product Name <span class="required">*</span></label>
+                                    <input type="text" id="editName" required>
+                                </div>
+                                <div class="edit-form-group">
+                                    <label for="editGenericName">Generic Name</label>
+                                    <input type="text" id="editGenericName">
+                                </div>
+                            </div>
+                            <div class="edit-form-row">
+                                <div class="edit-form-group">
+                                    <label for="editCategory">Category <span class="required">*</span></label>
+                                    <select id="editCategory" required>
+                                        <option value="">Select Category</option>
+                                        <option value="tablets">Tablets</option>
+                                        <option value="capsules">Capsules</option>
+                                        <option value="syrups">Syrups</option>
+                                        <option value="injections">Injections</option>
+                                        <option value="ointments">Ointments</option>
+                                        <option value="drops">Drops</option>
+                                        <option value="medical-devices">Medical Devices</option>
+                                        <option value="supplements">Supplements</option>
+                                        <option value="first-aid">First Aid</option>
+                                        <option value="personal-care">Personal Care</option>
+                                        <option value="baby-care">Baby Care</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="edit-form-group">
+                                    <label for="editDosageForm">Dosage Form</label>
+                                    <select id="editDosageForm">
+                                        <option value="">Select Form</option>
+                                        <option value="tablet">Tablet</option>
+                                        <option value="capsule">Capsule</option>
+                                        <option value="syrup">Syrup</option>
+                                        <option value="injection">Injection</option>
+                                        <option value="cream">Cream</option>
+                                        <option value="ointment">Ointment</option>
+                                        <option value="gel">Gel</option>
+                                        <option value="drops">Drops</option>
+                                        <option value="inhaler">Inhaler</option>
+                                        <option value="powder">Powder</option>
+                                        <option value="suspension">Suspension</option>
+                                        <option value="suppository">Suppository</option>
+                                        <option value="patch">Patch</option>
+                                        <option value="device">Device</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="edit-form-row">
+                                <div class="edit-form-group">
+                                    <label for="editStrength">Strength</label>
+                                    <input type="text" id="editStrength" placeholder="e.g., 500mg">
+                                </div>
+                                <div class="edit-form-group">
+                                    <label for="editManufacturer">Manufacturer</label>
+                                    <input type="text" id="editManufacturer">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Stock & Pricing -->
+                        <div class="edit-form-section">
+                            <h4>Stock & Pricing</h4>
+                            <div class="edit-form-row">
+                                <div class="edit-form-group">
+                                    <label for="editQuantity">Quantity <span class="required">*</span></label>
+                                    <input type="number" id="editQuantity" min="0" required>
+                                </div>
+                                <div class="edit-form-group">
+                                    <label for="editUnit">Unit</label>
+                                    <select id="editUnit">
+                                        <option value="pieces">Pieces</option>
+                                        <option value="boxes">Boxes</option>
+                                        <option value="strips">Strips</option>
+                                        <option value="bottles">Bottles</option>
+                                        <option value="tubes">Tubes</option>
+                                        <option value="vials">Vials</option>
+                                        <option value="packets">Packets</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="edit-form-row">
+                                <div class="edit-form-group">
+                                    <label for="editCostPrice">Cost Price <span class="required">*</span></label>
+                                    <input type="number" id="editCostPrice" min="0" step="0.01" required>
+                                </div>
+                                <div class="edit-form-group">
+                                    <label for="editSellingPrice">Selling Price <span class="required">*</span></label>
+                                    <input type="number" id="editSellingPrice" min="0" step="0.01" required>
+                                </div>
+                            </div>
+                            <div class="edit-form-row">
+                                <div class="edit-form-group">
+                                    <label for="editReorderLevel">Reorder Level</label>
+                                    <input type="number" id="editReorderLevel" min="0" value="10">
+                                </div>
+                                <div class="edit-form-group">
+                                    <label for="editBarcode">Barcode</label>
+                                    <input type="text" id="editBarcode" readonly>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Batch & Expiry -->
+                        <div class="edit-form-section">
+                            <h4>Batch & Expiry</h4>
+                            <div class="edit-form-row">
+                                <div class="edit-form-group">
+                                    <label for="editBatchNumber">Batch Number</label>
+                                    <input type="text" id="editBatchNumber">
+                                </div>
+                                <div class="edit-form-group">
+                                    <label for="editExpiryDate">Expiry Date <span class="required">*</span></label>
+                                    <input type="date" id="editExpiryDate" required>
+                                </div>
+                            </div>
+                            <div class="edit-form-row">
+                                <div class="edit-form-group">
+                                    <label for="editManufactureDate">Manufacture Date</label>
+                                    <input type="date" id="editManufactureDate">
+                                </div>
+                                <div class="edit-form-group">
+                                    <label for="editLocation">Storage Location</label>
+                                    <input type="text" id="editLocation" placeholder="e.g., Shelf A1">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Additional Info -->
+                        <div class="edit-form-section">
+                            <h4>Additional Information</h4>
+                            <div class="edit-form-row">
+                                <div class="edit-form-group">
+                                    <label for="editSupplier">Supplier</label>
+                                    <input type="text" id="editSupplier">
+                                </div>
+                                <div class="edit-form-group edit-form-checkbox">
+                                    <label>
+                                        <input type="checkbox" id="editPrescriptionRequired">
+                                        Prescription Required
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="edit-form-row">
+                                <div class="edit-form-group full-width">
+                                    <label for="editDescription">Description/Notes</label>
+                                    <textarea id="editDescription" rows="2" placeholder="Additional notes..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="inventory-modal-footer">
+                <button class="modal-btn modal-btn-secondary" id="cancelEditBtn">Cancel</button>
+                <button class="modal-btn modal-btn-primary" id="saveEditBtn">
+                    <i class="fas fa-save"></i> Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Firebase SDK -->
     <script type="module" src="js/firebase-config.js"></script>
     <script type="module" src="js/sales.js"></script>
     <script type="module" src="js/all-sales.js"></script>
     <script type="module" src="js/pos-module.js"></script>
+    <script type="module" src="js/inventory.js"></script>
+    <script type="module" src="js/inventory-view.js"></script>
     <script src="js/admin-panel.js"></script>
     <script src="js/app.js"></script>
 </body>

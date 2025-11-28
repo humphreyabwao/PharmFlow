@@ -6,25 +6,16 @@
     'use strict';
 
     // ============================================
-    // Sample Inventory Data (Replace with actual data source)
+    // Firebase Firestore imports
     // ============================================
-    const inventoryData = [
-        { id: 1, name: 'Amoxicillin', dosage: '250mg', category: 'Antibiotics', price: 550.00, stock: 100, barcode: '1234567890123' },
-        { id: 2, name: 'Ibuprofen', dosage: '200mg', category: 'Pain Relief', price: 375.00, stock: 150, barcode: '1234567890124' },
-        { id: 3, name: 'Paracetamol', dosage: '500mg', category: 'Pain Relief', price: 120.00, stock: 200, barcode: '1234567890125' },
-        { id: 4, name: 'Omeprazole', dosage: '20mg', category: 'Antacids', price: 450.00, stock: 80, barcode: '1234567890126' },
-        { id: 5, name: 'Metformin', dosage: '500mg', category: 'Diabetes', price: 280.00, stock: 120, barcode: '1234567890127' },
-        { id: 6, name: 'Amlodipine', dosage: '5mg', category: 'Cardiovascular', price: 320.00, stock: 90, barcode: '1234567890128' },
-        { id: 7, name: 'Ciprofloxacin', dosage: '500mg', category: 'Antibiotics', price: 680.00, stock: 60, barcode: '1234567890129' },
-        { id: 8, name: 'Loratadine', dosage: '10mg', category: 'Allergy', price: 250.00, stock: 140, barcode: '1234567890130' },
-        { id: 9, name: 'Salbutamol Inhaler', dosage: '100mcg', category: 'Respiratory', price: 850.00, stock: 45, barcode: '1234567890131' },
-        { id: 10, name: 'Vitamin C', dosage: '1000mg', category: 'Supplements', price: 180.00, stock: 300, barcode: '1234567890132' },
-        { id: 11, name: 'Diclofenac', dosage: '50mg', category: 'Pain Relief', price: 220.00, stock: 110, barcode: '1234567890133' },
-        { id: 12, name: 'Cetirizine', dosage: '10mg', category: 'Allergy', price: 150.00, stock: 180, barcode: '1234567890134' },
-        { id: 13, name: 'Azithromycin', dosage: '250mg', category: 'Antibiotics', price: 720.00, stock: 55, barcode: '1234567890135' },
-        { id: 14, name: 'Losartan', dosage: '50mg', category: 'Cardiovascular', price: 380.00, stock: 85, barcode: '1234567890136' },
-        { id: 15, name: 'Multivitamin', dosage: 'Complex', category: 'Supplements', price: 450.00, stock: 200, barcode: '1234567890137' }
-    ];
+    let db = null;
+    let collection, query, where, orderBy, limit, getDocs, onSnapshot;
+
+    // ============================================
+    // Real-time Inventory Data from Firestore
+    // ============================================
+    let inventoryData = [];
+    let unsubscribeInventory = null;
 
     // ============================================
     // State Management
@@ -103,11 +94,90 @@
     // ============================================
     // Initialize Module
     // ============================================
-    function init() {
+    async function init() {
         cacheElements();
+        await initFirebase();
         bindEvents();
+        setupInventoryListener();
         updateCartDisplay();
         console.info('PharmaFlow POS module initialized.');
+    }
+
+    // ============================================
+    // Firebase Initialization
+    // ============================================
+    async function initFirebase() {
+        try {
+            // Wait for Firebase to be available
+            let attempts = 0;
+            while (!window.PharmaFlowFirebase && attempts < 50) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+                attempts++;
+            }
+
+            if (!window.PharmaFlowFirebase) {
+                console.error('POS: Firebase not available');
+                return;
+            }
+
+            db = window.PharmaFlowFirebase.db;
+
+            // Import Firestore functions
+            const firestore = await import('https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js');
+            collection = firestore.collection;
+            query = firestore.query;
+            where = firestore.where;
+            orderBy = firestore.orderBy;
+            limit = firestore.limit;
+            getDocs = firestore.getDocs;
+            onSnapshot = firestore.onSnapshot;
+
+            console.info('POS: Firebase initialized successfully');
+        } catch (error) {
+            console.error('POS: Failed to initialize Firebase:', error);
+        }
+    }
+
+    // ============================================
+    // Real-time Inventory Listener
+    // ============================================
+    function setupInventoryListener() {
+        if (!db || !collection || !onSnapshot) {
+            console.warn('POS: Firebase not ready, inventory will be empty');
+            return;
+        }
+
+        try {
+            const inventoryRef = collection(db, 'inventory');
+            const inventoryQuery = query(inventoryRef, orderBy('name'));
+
+            unsubscribeInventory = onSnapshot(inventoryQuery, (snapshot) => {
+                inventoryData = [];
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    inventoryData.push({
+                        id: doc.id,
+                        name: data.name || '',
+                        genericName: data.genericName || '',
+                        dosage: data.strength || data.dosageForm || '',
+                        category: data.category || '',
+                        price: parseFloat(data.sellingPrice) || 0,
+                        costPrice: parseFloat(data.costPrice) || 0,
+                        stock: parseInt(data.quantity) || 0,
+                        barcode: data.barcode || '',
+                        unit: data.unit || 'pieces',
+                        manufacturer: data.manufacturer || '',
+                        expiryDate: data.expiryDate || '',
+                        prescriptionRequired: data.prescriptionRequired || false
+                    });
+                });
+                console.info(`POS: Loaded ${inventoryData.length} inventory items`);
+            }, (error) => {
+                console.error('POS: Error listening to inventory:', error);
+            });
+        } catch (error) {
+            console.error('POS: Failed to setup inventory listener:', error);
+        }
     }
 
     // ============================================
@@ -240,19 +310,39 @@
         }
     }
 
-    function searchInventory(query) {
-        return inventoryData.filter(item => 
-            item.name.toLowerCase().includes(query) ||
-            item.category.toLowerCase().includes(query) ||
-            item.barcode.includes(query) ||
-            item.dosage.toLowerCase().includes(query)
-        ).slice(0, 10);
+    function searchInventory(searchQuery) {
+        if (!inventoryData || inventoryData.length === 0) {
+            return [];
+        }
+
+        return inventoryData.filter(item => {
+            const name = (item.name || '').toLowerCase();
+            const genericName = (item.genericName || '').toLowerCase();
+            const category = (item.category || '').toLowerCase();
+            const barcode = (item.barcode || '').toLowerCase();
+            const dosage = (item.dosage || '').toLowerCase();
+            const manufacturer = (item.manufacturer || '').toLowerCase();
+
+            return name.includes(searchQuery) ||
+                   genericName.includes(searchQuery) ||
+                   category.includes(searchQuery) ||
+                   barcode.includes(searchQuery) ||
+                   dosage.includes(searchQuery) ||
+                   manufacturer.includes(searchQuery);
+        }).slice(0, 10);
     }
 
     function displaySearchResults(results) {
         if (!elements.searchResults) return;
 
-        if (results.length === 0) {
+        if (inventoryData.length === 0) {
+            elements.searchResults.innerHTML = `
+                <div class="pos-search-empty">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Loading inventory...</p>
+                </div>
+            `;
+        } else if (results.length === 0) {
             elements.searchResults.innerHTML = `
                 <div class="pos-search-empty">
                     <i class="fas fa-search"></i>
@@ -263,8 +353,11 @@
             elements.searchResults.innerHTML = results.map(item => `
                 <div class="pos-search-item" data-id="${item.id}">
                     <div class="pos-search-item-info">
-                        <div class="pos-search-item-name">${item.name}</div>
-                        <div class="pos-search-item-details">${item.dosage} • ${item.category}</div>
+                        <div class="pos-search-item-name">${escapeHtml(item.name)}</div>
+                        <div class="pos-search-item-details">
+                            ${escapeHtml(item.dosage)}${item.dosage && item.category ? ' • ' : ''}${escapeHtml(item.category)}
+                            ${item.genericName ? `<span class="pos-search-generic">(${escapeHtml(item.genericName)})</span>` : ''}
+                        </div>
                     </div>
                     <div class="pos-search-item-price">KSH ${item.price.toFixed(2)}</div>
                     <span class="pos-search-item-stock ${getStockClass(item.stock)}">${getStockLabel(item.stock)}</span>
@@ -274,18 +367,27 @@
             // Add click handlers to results
             elements.searchResults.querySelectorAll('.pos-search-item').forEach(el => {
                 el.addEventListener('click', () => {
-                    const itemId = parseInt(el.dataset.id);
+                    const itemId = el.dataset.id;
                     const item = inventoryData.find(i => i.id === itemId);
                     if (item && item.stock > 0) {
                         addToCart(item);
                         hideSearchResults();
                         elements.searchInput.value = '';
+                    } else if (item && item.stock <= 0) {
+                        showNotification('Item is out of stock', 'warning');
                     }
                 });
             });
         }
 
         elements.searchResults.classList.add('show');
+    }
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     }
 
     function hideSearchResults() {
@@ -704,6 +806,30 @@
             clearTimeout(timeout);
             timeout = setTimeout(later, wait);
         };
+    }
+
+    function showNotification(message, type = 'info') {
+        // Remove existing notification
+        const existing = document.querySelector('.pos-notification');
+        if (existing) existing.remove();
+
+        const notification = document.createElement('div');
+        notification.className = `pos-notification pos-notification-${type}`;
+        notification.innerHTML = `
+            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : type === 'error' ? 'times-circle' : 'info-circle'}"></i>
+            <span>${message}</span>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Trigger animation
+        setTimeout(() => notification.classList.add('show'), 10);
+        
+        // Remove after 3 seconds
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
     }
 
     // ============================================
