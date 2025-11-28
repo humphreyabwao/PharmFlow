@@ -278,9 +278,16 @@
     };
 
     // Logout All Sessions
-    window.logoutAllSessions = function() {
-        if (confirm('This will log you out from all other devices. Continue?')) {
-            showNotification('Logged out from all other sessions', 'success');
+    window.logoutAllSessions = async function() {
+        if (confirm('This will log you out from all devices including this one. Continue?')) {
+            showNotification('Logging out from all sessions...', 'info');
+            
+            // Use the global logout function
+            if (window.PharmaFlowLogout) {
+                await window.PharmaFlowLogout();
+            } else {
+                window.location.href = 'login.html';
+            }
         }
     };
 

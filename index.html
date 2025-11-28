@@ -6,6 +6,10 @@
     <title>PharmaFlow - Pharmacy Management System</title>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Hide everything until auth is confirmed -->
+    <style id="auth-hide-style">
+        .app-container { display: none !important; }
+    </style>
     <!-- JsBarcode Library for barcode generation -->
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
     <!-- SheetJS Library for Excel file parsing -->
@@ -14,6 +18,37 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <!-- jsPDF AutoTable plugin for tables in PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <!-- Auth Check Script - Redirects to login if not authenticated -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyB88Ttg2c9HMn1k3Me1KHtuTscYKUP4Wys",
+            authDomain: "pharmaflow-8481d.firebaseapp.com",
+            databaseURL: "https://pharmaflow-8481d-default-rtdb.firebaseio.com",
+            projectId: "pharmaflow-8481d",
+            storageBucket: "pharmaflow-8481d.firebasestorage.app",
+            messagingSenderId: "327113671676",
+            appId: "1:327113671676:web:da7b674de0c5b9f9a4a879",
+            measurementId: "G-37H0CBXGEX"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        
+        // Check auth state immediately
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                // Not logged in - redirect immediately
+                window.location.replace('login.html');
+            } else {
+                // Logged in - remove the hiding style to show the app
+                const hideStyle = document.getElementById('auth-hide-style');
+                if (hideStyle) hideStyle.remove();
+            }
+        });
+    </script>
 </head>
 <body>
     <div class="app-container">

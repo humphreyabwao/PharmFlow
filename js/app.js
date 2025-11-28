@@ -792,5 +792,41 @@
         console.warn('PharmaFlow: Activity system not initialized');
     };
 
-    document.addEventListener('DOMContentLoaded', init);
+    // Logout function - handles Firebase signOut and redirect
+    window.PharmaFlowLogout = async function() {
+        try {
+            // Check if Firebase auth is available
+            if (window.PharmaFlowFirebase && window.PharmaFlowFirebase.auth) {
+                const { signOut } = await import("https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js");
+                await signOut(window.PharmaFlowFirebase.auth);
+            }
+            
+            // Clear session storage
+            sessionStorage.removeItem('pharmaflow_user');
+            localStorage.removeItem('pharmaflow_session');
+            
+            // Redirect to login page
+            window.location.href = 'login.html';
+        } catch (error) {
+            console.error('Logout error:', error);
+            // Redirect anyway
+            window.location.href = 'login.html';
+        }
+    };
+
+    // Setup logout button click handler
+    function setupLogoutButton() {
+        const logoutBtn = document.querySelector('.dropdown-item.logout');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                window.PharmaFlowLogout();
+            });
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        init();
+        setupLogoutButton();
+    });
 })(window, document);
