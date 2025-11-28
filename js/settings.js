@@ -31,11 +31,14 @@ import {
     let themeRadios = [];
     let isSavingSettings = false;
     let isUploadingAvatar = false;
+    let autoSaveTimer = null;
+    let pendingChanges = false;
 
     document.addEventListener('DOMContentLoaded', () => {
         initThemeControls();
         hydrateFromCache();
         bindAvatarUpload();
+        bindAutoSave();
     });
 
     onAuthStateChanged(auth, (user) => {
@@ -144,7 +147,7 @@ import {
         }
     };
 
-    // Save All Settings to Firebase
+    // Save All Settings to Firebase (manual save button)
     window.saveAllSettings = async function() {
         if (!currentUser || !settingsRef) {
             showNotification('User profile not ready. Please wait a moment.', 'error');
@@ -154,6 +157,13 @@ import {
         if (isSavingSettings) {
             return;
         }
+
+        // Clear any pending auto-save
+        if (autoSaveTimer) {
+            clearTimeout(autoSaveTimer);
+            autoSaveTimer = null;
+        }
+        pendingChanges = false;
 
         const payload = collectSettingsFromForm();
         payload.updatedAt = Date.now();
@@ -165,10 +175,12 @@ import {
             await syncAuthProfile(payload.profile);
             applyTheme(payload.appearance.theme);
             applyLayoutPreferences(payload.appearance);
-            showNotification('Settings saved successfully!', 'success');
+            updateProfileDisplay(payload.profile, payload.account);
+            localStorage.setItem('pharmflow_settings_cache', JSON.stringify(payload));
+            showNotification('Settings saved!', 'success');
         } catch (error) {
             console.error('Error saving settings:', error);
-            showNotification('Failed to save settings. Please retry.', 'error');
+            showNotification('Failed to save settings.', 'error');
         } finally {
             isSavingSettings = false;
         }
@@ -436,6 +448,9 @@ import {
                 sound: getCheckboxValue('setNotifySound'),
                 desktop: getCheckboxValue('setNotifyDesktop')
             },
+            security: {
+                twoFactorEnabled: getCheckboxValue('set2FA')
+            },
             appearance: {
                 theme: themeValue,
                 compact: getCheckboxValue('setCompactMode'),
@@ -460,20 +475,24 @@ import {
         const profile = settings.profile || {};
         const account = settings.account || {};
         const notifications = settings.notifications || {};
+        const security = settings.security || {};
         const appearance = settings.appearance || {};
         const business = settings.business || {};
 
+        // Profile section
         setInputValue('setFirstName', profile.firstName);
         setInputValue('setLastName', profile.lastName);
         setInputValue('setEmail', profile.email || currentUser?.email || '');
         setInputValue('setPhone', profile.phone);
         setInputValue('setBio', profile.bio);
 
+        // Account section
         setInputValue('setUsername', account.username);
         setSelectValue('setRole', account.role || 'admin');
         setSelectValue('setLanguage', account.language || 'en');
         setSelectValue('setTimezone', account.timezone || 'Africa/Nairobi');
 
+        // Notifications section
         setCheckbox('setNotifyLowStock', defaultBoolean(notifications.lowStock, true));
         setCheckbox('setNotifyExpiry', defaultBoolean(notifications.expiry, true));
         setCheckbox('setNotifySales', defaultBoolean(notifications.sales, false));
@@ -481,6 +500,10 @@ import {
         setCheckbox('setNotifySound', defaultBoolean(notifications.sound, true));
         setCheckbox('setNotifyDesktop', defaultBoolean(notifications.desktop, false));
 
+        // Security section
+        setCheckbox('set2FA', !!security.twoFactorEnabled);
+
+        // Appearance section
         setCheckbox('setCompactMode', !!appearance.compact);
         setCheckbox('setSidebarCollapsed', !!appearance.sidebarCollapsed);
         const theme = appearance.theme || localStorage.getItem('theme') || 'light';
@@ -488,6 +511,7 @@ import {
         applyTheme(theme);
         applyLayoutPreferences(appearance);
 
+        // Business section
         setInputValue('setBizName', business.name);
         setInputValue('setBizPhone', business.phone);
         setInputValue('setBizEmail', business.email);
@@ -503,6 +527,9 @@ import {
         if (persistCache) {
             localStorage.setItem('pharmflow_settings_cache', JSON.stringify(settings));
         }
+
+        // Re-bind auto-save after hydrating form
+        setTimeout(() => bindAutoSave(), 100);
     }
 
     function initThemeControls() {
@@ -590,6 +617,122 @@ import {
                     attributeFilter: ['class'] 
                 });
             }
+        }
+    }
+
+    // Auto-save functionality - saves changes automatically without user interaction
+    function bindAutoSave() {
+        const settingsContainer = document.getElementById('module-settings');
+        if (!settingsContainer) {
+            // Retry when settings module is available
+            setTimeout(bindAutoSave, 500);
+            return;
+        }
+
+        // All input types that should trigger auto-save
+        const inputSelectors = [
+            'input[type="text"]',
+            'input[type="email"]',
+            'input[type="tel"]',
+            'input[type="number"]',
+            'textarea',
+            'select'
+        ].join(', ');
+
+        // Bind to all text inputs, textareas, and selects - use debounced save
+        settingsContainer.querySelectorAll(inputSelectors).forEach(input => {
+            if (input._autoSaveBound) return;
+            input._autoSaveBound = true;
+
+            input.addEventListener('input', () => {
+                scheduleAutoSave();
+            });
+
+            input.addEventListener('change', () => {
+                scheduleAutoSave();
+            });
+
+            // Save on blur for immediate feedback
+            input.addEventListener('blur', () => {
+                if (pendingChanges) {
+                    performAutoSave();
+                }
+            });
+        });
+
+        // Bind to all checkboxes - save immediately on change
+        settingsContainer.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            if (checkbox._autoSaveBound) return;
+            checkbox._autoSaveBound = true;
+
+            checkbox.addEventListener('change', () => {
+                performAutoSave();
+            });
+        });
+
+        // Bind to radio buttons (theme selection) - save immediately
+        settingsContainer.querySelectorAll('input[type="radio"]').forEach(radio => {
+            if (radio._autoSaveBound) return;
+            radio._autoSaveBound = true;
+
+            radio.addEventListener('change', () => {
+                performAutoSave();
+            });
+        });
+    }
+
+    // Debounced auto-save scheduler
+    function scheduleAutoSave() {
+        pendingChanges = true;
+        
+        if (autoSaveTimer) {
+            clearTimeout(autoSaveTimer);
+        }
+
+        // Wait 1 second after last change before saving
+        autoSaveTimer = setTimeout(() => {
+            performAutoSave();
+        }, 1000);
+    }
+
+    // Perform the actual auto-save
+    async function performAutoSave() {
+        if (!currentUser || !settingsRef || isSavingSettings) {
+            return;
+        }
+
+        pendingChanges = false;
+        
+        if (autoSaveTimer) {
+            clearTimeout(autoSaveTimer);
+            autoSaveTimer = null;
+        }
+
+        const payload = collectSettingsFromForm();
+        payload.updatedAt = Date.now();
+
+        try {
+            isSavingSettings = true;
+            await set(settingsRef, payload);
+            currentSettings = payload;
+            
+            // Sync auth profile silently
+            await syncAuthProfile(payload.profile);
+            
+            // Apply theme and layout preferences
+            applyTheme(payload.appearance.theme);
+            applyLayoutPreferences(payload.appearance);
+            
+            // Update profile display in header
+            updateProfileDisplay(payload.profile, payload.account);
+            
+            // Cache locally
+            localStorage.setItem('pharmflow_settings_cache', JSON.stringify(payload));
+        } catch (error) {
+            console.error('Auto-save failed:', error);
+            // Silently fail - user can manually save if needed
+        } finally {
+            isSavingSettings = false;
         }
     }
 
@@ -795,6 +938,9 @@ import {
                 orders: true,
                 sound: true,
                 desktop: false
+            },
+            security: {
+                twoFactorEnabled: false
             },
             appearance: {
                 theme,
