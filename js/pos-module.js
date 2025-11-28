@@ -6,32 +6,20 @@ import { db } from './firebase-config.js';
 import { 
     collection, 
     addDoc, 
-    serverTimestamp
+    serverTimestamp,
+    query,
+    orderBy,
+    onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
 (function(window, document) {
     'use strict';
 
     // ============================================
-    // Sample Inventory Data (Replace with actual data source)
+    // Real-time Inventory Data from Firestore
     // ============================================
-    const inventoryData = [
-        { id: 1, name: 'Amoxicillin', dosage: '250mg', category: 'Antibiotics', price: 550.00, stock: 100, barcode: '1234567890123' },
-        { id: 2, name: 'Ibuprofen', dosage: '200mg', category: 'Pain Relief', price: 375.00, stock: 150, barcode: '1234567890124' },
-        { id: 3, name: 'Paracetamol', dosage: '500mg', category: 'Pain Relief', price: 120.00, stock: 200, barcode: '1234567890125' },
-        { id: 4, name: 'Omeprazole', dosage: '20mg', category: 'Antacids', price: 450.00, stock: 80, barcode: '1234567890126' },
-        { id: 5, name: 'Metformin', dosage: '500mg', category: 'Diabetes', price: 280.00, stock: 120, barcode: '1234567890127' },
-        { id: 6, name: 'Amlodipine', dosage: '5mg', category: 'Cardiovascular', price: 320.00, stock: 90, barcode: '1234567890128' },
-        { id: 7, name: 'Ciprofloxacin', dosage: '500mg', category: 'Antibiotics', price: 680.00, stock: 60, barcode: '1234567890129' },
-        { id: 8, name: 'Loratadine', dosage: '10mg', category: 'Allergy', price: 250.00, stock: 140, barcode: '1234567890130' },
-        { id: 9, name: 'Salbutamol Inhaler', dosage: '100mcg', category: 'Respiratory', price: 850.00, stock: 45, barcode: '1234567890131' },
-        { id: 10, name: 'Vitamin C', dosage: '1000mg', category: 'Supplements', price: 180.00, stock: 300, barcode: '1234567890132' },
-        { id: 11, name: 'Diclofenac', dosage: '50mg', category: 'Pain Relief', price: 220.00, stock: 110, barcode: '1234567890133' },
-        { id: 12, name: 'Cetirizine', dosage: '10mg', category: 'Allergy', price: 150.00, stock: 180, barcode: '1234567890134' },
-        { id: 13, name: 'Azithromycin', dosage: '250mg', category: 'Antibiotics', price: 720.00, stock: 55, barcode: '1234567890135' },
-        { id: 14, name: 'Losartan', dosage: '50mg', category: 'Cardiovascular', price: 380.00, stock: 85, barcode: '1234567890136' },
-        { id: 15, name: 'Multivitamin', dosage: 'Complex', category: 'Supplements', price: 450.00, stock: 200, barcode: '1234567890137' }
-    ];
+    let inventoryData = [];
+    let unsubscribeInventory = null;
 
     // ============================================
     // State Management
@@ -111,8 +99,46 @@ import {
     function init() {
         cacheElements();
         bindEvents();
+        setupInventoryListener();
         updateCartDisplay();
         console.info('PharmaFlow POS module initialized with Firestore.');
+    }
+
+    // ============================================
+    // Real-time Inventory Listener
+    // ============================================
+    function setupInventoryListener() {
+        try {
+            const inventoryRef = collection(db, 'inventory');
+            const inventoryQuery = query(inventoryRef, orderBy('name'));
+
+            unsubscribeInventory = onSnapshot(inventoryQuery, (snapshot) => {
+                inventoryData = [];
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    inventoryData.push({
+                        id: doc.id,
+                        name: data.name || '',
+                        genericName: data.genericName || '',
+                        dosage: data.strength || data.dosageForm || '',
+                        category: data.category || '',
+                        price: parseFloat(data.sellingPrice) || 0,
+                        costPrice: parseFloat(data.costPrice) || 0,
+                        stock: parseInt(data.quantity) || 0,
+                        barcode: data.barcode || '',
+                        unit: data.unit || 'pieces',
+                        manufacturer: data.manufacturer || '',
+                        expiryDate: data.expiryDate || '',
+                        prescriptionRequired: data.prescriptionRequired || false
+                    });
+                });
+                console.info(`POS: Loaded ${inventoryData.length} inventory items from Firestore`);
+            }, (error) => {
+                console.error('POS: Error listening to inventory:', error);
+            });
+        } catch (error) {
+            console.error('POS: Failed to setup inventory listener:', error);
+        }
     }
 
     // ============================================
