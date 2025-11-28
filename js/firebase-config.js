@@ -3,7 +3,22 @@
  */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-analytics.js";
-import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+import { 
+    getFirestore,
+    collection,
+    doc,
+    addDoc,
+    updateDoc,
+    deleteDoc,
+    getDoc,
+    getDocs,
+    query,
+    where,
+    orderBy,
+    limit,
+    Timestamp,
+    onSnapshot
+} from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 import { getDatabase } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
 
@@ -35,5 +50,24 @@ const services = { app, analytics, db, rtdb, auth };
 
 window.PharmaFlowFirebase = services;
 
-export { app, analytics, db, rtdb, auth };
+export { 
+    app, 
+    analytics, 
+    db, 
+    rtdb, 
+    auth,
+    collection,
+    doc,
+    addDoc,
+    updateDoc,
+    deleteDoc,
+    getDoc,
+    getDocs,
+    query,
+    where,
+    orderBy,
+    limit,
+    Timestamp,
+    onSnapshot
+};
 export default services;
