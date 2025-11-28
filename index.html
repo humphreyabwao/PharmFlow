@@ -42,7 +42,7 @@
                             <li class="submenu-item">
                                 <a href="#" class="submenu-link" data-module="pharmacy-sales">
                                     <i class="fas fa-receipt"></i>
-                                    <span>All Sales</span>
+                                    <span>Today's Sales</span>
                                 </a>
                             </li>
                         </ul>
@@ -492,15 +492,189 @@
 
                 <!-- Pharmacy POS Module -->
                 <div class="module-content" id="module-pharmacy-pos">
-                    <div class="module-header">
-                        <h1>Point of Sale (POS)</h1>
-                        <p>Process sales and transactions</p>
+                    <div class="pos-container">
+                        <!-- Left Section: Search & Cart -->
+                        <div class="pos-left">
+                            <!-- Search Section -->
+                            <div class="pos-search-section">
+                                <div class="pos-search-bar">
+                                    <i class="fas fa-search"></i>
+                                    <input type="text" id="posSearchInput" placeholder="Search inventory by name, barcode, or category..." autocomplete="off">
+                                    <div class="pos-search-actions">
+                                        <button class="pos-action-btn" id="posScannerBtn" title="Scan Barcode">
+                                            <i class="fas fa-barcode"></i>
+                                        </button>
+                                        <button class="pos-action-btn" id="posManualAddBtn" title="Manual Entry">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <!-- Search Results Dropdown -->
+                                <div class="pos-search-results" id="posSearchResults">
+                                    <!-- Results populated dynamically -->
+                                </div>
+                            </div>
+
+                            <!-- Cart Section -->
+                            <div class="pos-cart-section">
+                                <div class="pos-cart-header">
+                                    <h3><i class="fas fa-shopping-cart"></i> Cart Items</h3>
+                                    <button class="pos-clear-cart-btn" id="posClearCartBtn">
+                                        <i class="fas fa-trash-alt"></i> Clear
+                                    </button>
+                                </div>
+                                <div class="pos-cart-table-wrapper">
+                                    <table class="pos-cart-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Item</th>
+                                                <th>Price</th>
+                                                <th>Qty</th>
+                                                <th>Total</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="posCartBody">
+                                            <!-- Cart items populated dynamically -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="pos-cart-empty" id="posCartEmpty">
+                                    <i class="fas fa-cart-plus"></i>
+                                    <p>Cart is empty</p>
+                                    <span>Search and add items to begin</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Section: Checkout -->
+                        <div class="pos-right">
+                            <div class="pos-checkout-section">
+                                <div class="pos-checkout-header">
+                                    <h3><i class="fas fa-calculator"></i> Order Summary</h3>
+                                    <button class="pos-view-sales-btn" id="posViewAllSalesBtn">
+                                        <i class="fas fa-receipt"></i> View All Sales
+                                    </button>
+                                </div>
+
+                                <!-- Calculation Summary -->
+                                <div class="pos-summary">
+                                    <div class="pos-summary-row">
+                                        <span>Subtotal</span>
+                                        <span id="posSubtotal">KSH 0.00</span>
+                                    </div>
+                                    <div class="pos-summary-row pos-input-row">
+                                        <label for="posDiscount">Discount (KSH)</label>
+                                        <input type="number" id="posDiscount" value="0" min="0" step="0.01">
+                                    </div>
+                                    <div class="pos-summary-row pos-input-row">
+                                        <label for="posTax">Tax (%)</label>
+                                        <input type="number" id="posTax" value="0" min="0" max="100" step="0.01">
+                                    </div>
+                                    <div class="pos-summary-row">
+                                        <span>Tax Amount</span>
+                                        <span id="posTaxAmount">KSH 0.00</span>
+                                    </div>
+                                    <div class="pos-summary-row pos-total">
+                                        <span>Grand Total</span>
+                                        <span id="posGrandTotal">KSH 0.00</span>
+                                    </div>
+                                </div>
+
+                                <!-- Payment Section -->
+                                <div class="pos-payment-section">
+                                    <h4><i class="fas fa-money-bill-wave"></i> Payment</h4>
+                                    <div class="pos-payment-methods">
+                                        <button class="pos-payment-method active" data-method="cash">
+                                            <i class="fas fa-coins"></i> Cash
+                                        </button>
+                                        <button class="pos-payment-method" data-method="mpesa">
+                                            <i class="fas fa-mobile-alt"></i> M-Pesa
+                                        </button>
+                                        <button class="pos-payment-method" data-method="card">
+                                            <i class="fas fa-credit-card"></i> Card
+                                        </button>
+                                    </div>
+
+                                    <div class="pos-tendered-section" id="posTenderedSection">
+                                        <div class="pos-input-group">
+                                            <label for="posAmountTendered">Amount Tendered (KSH)</label>
+                                            <input type="number" id="posAmountTendered" value="0" min="0" step="0.01">
+                                        </div>
+                                        <div class="pos-change-display">
+                                            <span>Change</span>
+                                            <span id="posChange" class="pos-change-amount">KSH 0.00</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Customer Section -->
+                                <div class="pos-customer-section">
+                                    <div class="pos-input-group">
+                                        <label for="posCustomer"><i class="fas fa-user"></i> Customer (Optional)</label>
+                                        <input type="text" id="posCustomer" placeholder="Walk-in Customer">
+                                    </div>
+                                </div>
+
+                                <!-- Action Buttons -->
+                                <div class="pos-checkout-actions">
+                                    <button class="pos-hold-btn" id="posHoldBtn">
+                                        <i class="fas fa-pause"></i> Hold
+                                    </button>
+                                    <button class="pos-checkout-btn" id="posCheckoutBtn">
+                                        <i class="fas fa-check-circle"></i> Complete Sale
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="module-body">
-                        <div class="placeholder-content">
-                            <i class="fas fa-cash-register"></i>
-                            <h2>POS Module</h2>
-                            <p>This module is ready for future implementation.</p>
+
+                    <!-- Manual Entry Modal -->
+                    <div class="pos-modal" id="posManualEntryModal">
+                        <div class="pos-modal-content">
+                            <div class="pos-modal-header">
+                                <h3><i class="fas fa-plus-circle"></i> Add Item Manually</h3>
+                                <button class="pos-modal-close" id="posManualEntryClose">&times;</button>
+                            </div>
+                            <div class="pos-modal-body">
+                                <div class="pos-form-group">
+                                    <label for="manualItemName">Item Name *</label>
+                                    <input type="text" id="manualItemName" placeholder="Enter item name">
+                                </div>
+                                <div class="pos-form-row">
+                                    <div class="pos-form-group">
+                                        <label for="manualItemPrice">Unit Price (KSH) *</label>
+                                        <input type="number" id="manualItemPrice" placeholder="0.00" min="0" step="0.01">
+                                    </div>
+                                    <div class="pos-form-group">
+                                        <label for="manualItemQty">Quantity *</label>
+                                        <input type="number" id="manualItemQty" value="1" min="1">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="pos-modal-footer">
+                                <button class="pos-modal-cancel" id="posManualEntryCancel">Cancel</button>
+                                <button class="pos-modal-add" id="posManualEntryAdd">Add to Cart</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Scanner Modal -->
+                    <div class="pos-modal" id="posScannerModal">
+                        <div class="pos-modal-content">
+                            <div class="pos-modal-header">
+                                <h3><i class="fas fa-barcode"></i> Barcode Scanner</h3>
+                                <button class="pos-modal-close" id="posScannerClose">&times;</button>
+                            </div>
+                            <div class="pos-modal-body">
+                                <div class="pos-scanner-input">
+                                    <input type="text" id="posBarcodeInput" placeholder="Scan or enter barcode..." autofocus>
+                                    <p class="pos-scanner-hint">Position barcode in front of scanner or type manually</p>
+                                </div>
+                            </div>
+                            <div class="pos-modal-footer">
+                                <button class="pos-modal-cancel" id="posScannerCancel">Close</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -508,14 +682,143 @@
                 <!-- Pharmacy All Sales Module -->
                 <div class="module-content" id="module-pharmacy-sales">
                     <div class="module-header">
-                        <h1>All Sales</h1>
-                        <p>View and manage all sales records</p>
+                        <div class="module-header-content">
+                            <div>
+                                <h1>Today's Sales</h1>
+                                <p>View and manage today's sales in real-time</p>
+                            </div>
+                            <div class="sales-header-actions">
+                                <button class="btn-add-sale" id="btnAddSale" data-module="pharmacy-pos">
+                                    <i class="fas fa-cash-register"></i>
+                                    <span>Go to POS</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                     <div class="module-body">
-                        <div class="placeholder-content">
-                            <i class="fas fa-receipt"></i>
-                            <h2>All Sales Module</h2>
-                            <p>This module is ready for future implementation.</p>
+                        <!-- Sales Stats Cards -->
+                        <div class="sales-stats-grid">
+                            <div class="sales-stat-card">
+                                <div class="sales-stat-icon today">
+                                    <i class="fas fa-shopping-cart"></i>
+                                </div>
+                                <div class="sales-stat-info">
+                                    <span class="sales-stat-label">Total Sales</span>
+                                    <h3 class="sales-stat-value" id="salesTodayCount">0</h3>
+                                </div>
+                            </div>
+                            <div class="sales-stat-card">
+                                <div class="sales-stat-icon revenue">
+                                    <i class="fas fa-coins"></i>
+                                </div>
+                                <div class="sales-stat-info">
+                                    <span class="sales-stat-label">Total Revenue</span>
+                                    <h3 class="sales-stat-value" id="revenueTodayAmount">KSH 0.00</h3>
+                                </div>
+                            </div>
+                            <div class="sales-stat-card">
+                                <div class="sales-stat-icon profit">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
+                                <div class="sales-stat-info">
+                                    <span class="sales-stat-label">Total Profit</span>
+                                    <h3 class="sales-stat-value" id="profitTodayAmount">KSH 0.00</h3>
+                                </div>
+                            </div>
+                            <div class="sales-stat-card">
+                                <div class="sales-stat-icon all-sales">
+                                    <i class="fas fa-credit-card"></i>
+                                </div>
+                                <div class="sales-stat-info">
+                                    <span class="sales-stat-label">Cash Sales</span>
+                                    <h3 class="sales-stat-value" id="cashSalesCount">0</h3>
+                                </div>
+                            </div>
+                            <div class="sales-stat-card">
+                                <div class="sales-stat-icon total-revenue">
+                                    <i class="fas fa-mobile-alt"></i>
+                                </div>
+                                <div class="sales-stat-info">
+                                    <span class="sales-stat-label">M-Pesa Sales</span>
+                                    <h3 class="sales-stat-value" id="mpesaSalesCount">0</h3>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sales Table Section -->
+                        <div class="sales-table-section">
+                            <div class="sales-table-header">
+                                <div class="sales-table-title">
+                                    <h3><i class="fas fa-list"></i> Sales Today</h3>
+                                </div>
+                                <div class="sales-table-filters">
+                                    <div class="sales-search-box">
+                                        <i class="fas fa-search"></i>
+                                        <input type="text" id="salesSearchInput" placeholder="Search by receipt, customer, or item...">
+                                    </div>
+                                    <div class="sales-filter-group">
+                                        <select id="salesFilterPayment" class="sales-filter-select">
+                                            <option value="all">All Payments</option>
+                                            <option value="cash">Cash</option>
+                                            <option value="mpesa">M-Pesa</option>
+                                            <option value="card">Card</option>
+                                        </select>
+                                        <select id="salesFilterStatus" class="sales-filter-select">
+                                            <option value="all">All Status</option>
+                                            <option value="completed">Completed</option>
+                                            <option value="pending">Pending</option>
+                                            <option value="cancelled">Cancelled</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="sales-table-wrapper">
+                                <table class="sales-table" id="salesTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Receipt #</th>
+                                            <th>Date & Time</th>
+                                            <th>Customer</th>
+                                            <th>Items</th>
+                                            <th>Payment</th>
+                                            <th>Total</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="salesTableBody">
+                                        <!-- Sales rows populated dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="sales-table-empty" id="salesTableEmpty">
+                                <i class="fas fa-receipt"></i>
+                                <h3>No Sales Today</h3>
+                                <p>Sales will appear here in real-time as they are made</p>
+                            </div>
+                            <div class="sales-table-loading" id="salesTableLoading">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                <p>Loading sales...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- View Sale Details Modal -->
+                    <div class="sales-modal" id="viewSaleModal">
+                        <div class="sales-modal-content sale-details-modal">
+                            <div class="sales-modal-header">
+                                <h3><i class="fas fa-receipt"></i> Sale Details</h3>
+                                <button class="sales-modal-close" id="closeViewSaleModal">&times;</button>
+                            </div>
+                            <div class="sales-modal-body" id="saleDetailsContent">
+                                <!-- Sale details populated dynamically -->
+                            </div>
+                            <div class="sales-modal-footer">
+                                <button class="btn-print-receipt" id="btnPrintReceipt">
+                                    <i class="fas fa-print"></i> Print Receipt
+                                </button>
+                                <button class="btn-close-details" id="btnCloseDetails">Close</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -885,7 +1188,8 @@
 
     <!-- Firebase SDK -->
     <script type="module" src="js/firebase-config.js"></script>
-    <script src="js/pos.js"></script>
+    <script type="module" src="js/sales.js"></script>
+    <script type="module" src="js/pos-module.js"></script>
     <script src="js/admin-panel.js"></script>
     <script src="js/app.js"></script>
 </body>

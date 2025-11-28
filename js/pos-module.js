@@ -1,7 +1,14 @@
 /**
  * PharmaFlow POS Module
- * Complete Point of Sale functionality with inventory search, cart management, and checkout
+ * Complete Point of Sale functionality with Firestore integration
  */
+import { db } from './firebase-config.js';
+import { 
+    collection, 
+    addDoc, 
+    serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
 (function(window, document) {
     'use strict';
 
@@ -105,7 +112,7 @@
         cacheElements();
         bindEvents();
         updateCartDisplay();
-        console.info('PharmaFlow POS module initialized.');
+        console.info('PharmaFlow POS module initialized with Firestore.');
     }
 
     // ============================================
@@ -201,7 +208,6 @@
     // Navigation
     // ============================================
     function navigateToAllSales() {
-        // Navigate to the All Sales module
         const salesLink = document.querySelector('.submenu-link[data-module="pharmacy-sales"]');
         if (salesLink) {
             salesLink.click();
@@ -460,7 +466,19 @@
     }
 
     // ============================================
-    // Checkout
+    // Generate Receipt Number
+    // ============================================
+    function generateReceiptNumber() {
+        const date = new Date();
+        const year = date.getFullYear().toString().slice(-2);
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+        return `RCP-${year}${month}${day}-${random}`;
+    }
+
+    // ============================================
+    // Checkout - Save to Firestore
     // ============================================
     async function handleCheckout() {
         if (state.cartItems.length === 0) {
@@ -473,56 +491,69 @@
             return;
         }
 
-        // Create sale record
+        const receiptNumber = generateReceiptNumber();
+
+        // Create sale record for Firestore
         const sale = {
-            id: Date.now(),
-            items: [...state.cartItems],
+            receiptNumber: receiptNumber,
+            customer: state.customer || 'Walk-in Customer',
+            paymentMethod: state.paymentMethod,
+            items: state.cartItems.map(item => ({
+                id: item.id,
+                name: item.name,
+                dosage: item.dosage || '',
+                price: item.price,
+                quantity: item.quantity,
+                total: item.price * item.quantity
+            })),
             subtotal: state.subtotal,
             discount: state.discount,
             taxPercent: state.taxPercent,
             taxAmount: state.taxAmount,
             grandTotal: state.grandTotal,
-            paymentMethod: state.paymentMethod,
             amountTendered: state.amountTendered,
             change: state.change,
-            customer: state.customer || 'Walk-in Customer',
-            timestamp: new Date().toISOString()
+            status: 'completed',
+            createdAt: serverTimestamp()
         };
 
-        // Save to Firestore via Sales module
-        if (window.PharmaFlowSales && typeof window.PharmaFlowSales.addSaleFromPOS === 'function') {
-            try {
-                // Disable checkout button while processing
-                if (elements.checkoutBtn) {
-                    elements.checkoutBtn.disabled = true;
-                    elements.checkoutBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-                }
-
-                const result = await window.PharmaFlowSales.addSaleFromPOS(sale);
-                
-                if (result.success) {
-                    console.log('Sale saved to Firestore:', result.id);
-                    alert(`Sale completed successfully!\n\nReceipt: ${result.receiptNumber}\nTotal: KSH ${state.grandTotal.toFixed(2)}\nPayment: ${state.paymentMethod.toUpperCase()}\n${state.paymentMethod === 'cash' ? `Change: KSH ${state.change.toFixed(2)}` : ''}`);
-                } else {
-                    console.error('Failed to save sale:', result.error);
-                    alert(`Sale completed locally but failed to sync.\n\nTotal: KSH ${state.grandTotal.toFixed(2)}\nPayment: ${state.paymentMethod.toUpperCase()}`);
-                }
-            } catch (error) {
-                console.error('Error saving sale:', error);
-                alert(`Sale completed!\n\nTotal: KSH ${state.grandTotal.toFixed(2)}\nPayment: ${state.paymentMethod.toUpperCase()}`);
-            } finally {
-                if (elements.checkoutBtn) {
-                    elements.checkoutBtn.disabled = false;
-                    elements.checkoutBtn.innerHTML = '<i class="fas fa-check-circle"></i> Complete Sale';
-                }
+        try {
+            // Disable checkout button while processing
+            if (elements.checkoutBtn) {
+                elements.checkoutBtn.disabled = true;
+                elements.checkoutBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
             }
-        } else {
-            console.log('Sale completed (local only):', sale);
-            alert(`Sale completed successfully!\n\nTotal: KSH ${state.grandTotal.toFixed(2)}\nPayment: ${state.paymentMethod.toUpperCase()}\n${state.paymentMethod === 'cash' ? `Change: KSH ${state.change.toFixed(2)}` : ''}`);
+
+            // Save directly to Firestore
+            const docRef = await addDoc(collection(db, 'sales'), sale);
+            
+            console.log('Sale saved to Firestore:', docRef.id);
+            
+            // Show success message
+            showSuccessMessage(receiptNumber);
+            
+            // Reset POS
+            resetPOS();
+
+        } catch (error) {
+            console.error('Error saving sale to Firestore:', error);
+            alert(`Error saving sale: ${error.message}\n\nPlease check your internet connection and try again.`);
+        } finally {
+            if (elements.checkoutBtn) {
+                elements.checkoutBtn.disabled = false;
+                elements.checkoutBtn.innerHTML = '<i class="fas fa-check-circle"></i> Complete Sale';
+            }
         }
+    }
+
+    function showSuccessMessage(receiptNumber) {
+        const message = `✅ Sale Completed Successfully!\n\n` +
+            `Receipt: ${receiptNumber}\n` +
+            `Total: KSH ${state.grandTotal.toFixed(2)}\n` +
+            `Payment: ${state.paymentMethod.toUpperCase()}` +
+            (state.paymentMethod === 'cash' ? `\nChange: KSH ${state.change.toFixed(2)}` : '');
         
-        // Reset POS
-        resetPOS();
+        alert(message);
     }
 
     function handleHold() {
