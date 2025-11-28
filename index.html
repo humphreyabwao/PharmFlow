@@ -2479,14 +2479,252 @@
                 <!-- Manage Wholesale Module -->
                 <div class="module-content" id="module-wholesale-manage">
                     <div class="module-header">
-                        <h1>Manage Wholesale</h1>
-                        <p>View and manage wholesale orders and suppliers</p>
+                        <div class="module-header-text">
+                            <h1>Manage Wholesale</h1>
+                            <p>View and manage wholesale orders and sales</p>
+                        </div>
+                        <div class="mw-quick-actions">
+                            <button class="mw-action-btn mw-btn-create" onclick="showModule('wholesale-create')">
+                                <i class="fas fa-plus"></i> New Sale
+                            </button>
+                            <button class="mw-action-btn mw-btn-export" onclick="exportWholesalePDF()">
+                                <i class="fas fa-file-pdf"></i> Export PDF
+                            </button>
+                        </div>
                     </div>
                     <div class="module-body">
-                        <div class="placeholder-content">
-                            <i class="fas fa-tasks"></i>
-                            <h2>Manage Wholesale Module</h2>
-                            <p>This module is ready for future implementation.</p>
+                        <!-- Stats Cards -->
+                        <div class="mw-stats">
+                            <div class="mw-stat-card">
+                                <div class="mw-stat-icon mw-icon-total">
+                                    <i class="fas fa-receipt"></i>
+                                </div>
+                                <div class="mw-stat-info">
+                                    <span class="mw-stat-value" id="mwTotalOrders">0</span>
+                                    <span class="mw-stat-label">Total Orders</span>
+                                </div>
+                            </div>
+                            <div class="mw-stat-card">
+                                <div class="mw-stat-icon mw-icon-revenue">
+                                    <i class="fas fa-coins"></i>
+                                </div>
+                                <div class="mw-stat-info">
+                                    <span class="mw-stat-value" id="mwTotalRevenue">Ksh 0</span>
+                                    <span class="mw-stat-label">Total Revenue</span>
+                                </div>
+                            </div>
+                            <div class="mw-stat-card">
+                                <div class="mw-stat-icon mw-icon-today">
+                                    <i class="fas fa-calendar-day"></i>
+                                </div>
+                                <div class="mw-stat-info">
+                                    <span class="mw-stat-value" id="mwTodaySales">Ksh 0</span>
+                                    <span class="mw-stat-label">Today's Sales</span>
+                                </div>
+                            </div>
+                            <div class="mw-stat-card">
+                                <div class="mw-stat-icon mw-icon-pending">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <div class="mw-stat-info">
+                                    <span class="mw-stat-value" id="mwPendingOrders">0</span>
+                                    <span class="mw-stat-label">Drafts/Pending</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Filters Section -->
+                        <div class="mw-filters">
+                            <div class="mw-search-box">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="mwSearchInput" placeholder="Search by customer, order ID...">
+                            </div>
+                            <div class="mw-filter-group">
+                                <select id="mwStatusFilter">
+                                    <option value="">All Status</option>
+                                    <option value="completed">Completed</option>
+                                    <option value="draft">Draft</option>
+                                    <option value="cancelled">Cancelled</option>
+                                </select>
+                                <select id="mwPaymentFilter">
+                                    <option value="">All Payments</option>
+                                    <option value="cash">Cash</option>
+                                    <option value="mpesa">M-Pesa</option>
+                                    <option value="bank">Bank Transfer</option>
+                                    <option value="credit">Credit</option>
+                                </select>
+                                <input type="date" id="mwDateFrom" title="From Date">
+                                <input type="date" id="mwDateTo" title="To Date">
+                                <button class="mw-filter-btn" onclick="resetWholesaleFilters()">
+                                    <i class="fas fa-redo"></i> Reset
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Orders Table -->
+                        <div class="mw-table-container">
+                            <table class="mw-table">
+                                <thead>
+                                    <tr>
+                                        <th>Order ID</th>
+                                        <th>Date</th>
+                                        <th>Customer</th>
+                                        <th>Items</th>
+                                        <th>Total</th>
+                                        <th>Payment</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="mwTableBody">
+                                    <tr class="mw-empty-row">
+                                        <td colspan="8">
+                                            <div class="mw-empty-state">
+                                                <i class="fas fa-inbox"></i>
+                                                <p>No wholesale orders found</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        <div class="mw-pagination">
+                            <span class="mw-page-info" id="mwPageInfo">Showing 0 of 0 orders</span>
+                            <div class="mw-page-controls">
+                                <button class="mw-page-btn" id="mwPrevBtn" onclick="prevWholesalePage()" disabled>
+                                    <i class="fas fa-chevron-left"></i> Previous
+                                </button>
+                                <button class="mw-page-btn" id="mwNextBtn" onclick="nextWholesalePage()" disabled>
+                                    Next <i class="fas fa-chevron-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- View Wholesale Order Modal -->
+                <div class="mw-modal-overlay" id="mwViewModal">
+                    <div class="mw-modal">
+                        <div class="mw-modal-header">
+                            <h3><i class="fas fa-eye"></i> Order Details</h3>
+                            <button class="mw-modal-close" onclick="closeWholesaleViewModal()">&times;</button>
+                        </div>
+                        <div class="mw-modal-body" id="mwViewContent">
+                            <!-- Content loaded dynamically -->
+                        </div>
+                        <div class="mw-modal-footer">
+                            <button class="mw-btn-secondary" onclick="closeWholesaleViewModal()">Close</button>
+                            <button class="mw-btn-primary" onclick="printWholesaleOrder()">
+                                <i class="fas fa-print"></i> Print
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Edit Wholesale Order Modal -->
+                <div class="mw-modal-overlay" id="mwEditModal">
+                    <div class="mw-modal mw-modal-large">
+                        <div class="mw-modal-header">
+                            <h3><i class="fas fa-edit"></i> Edit Order</h3>
+                            <button class="mw-modal-close" onclick="closeWholesaleEditModal()">&times;</button>
+                        </div>
+                        <div class="mw-modal-body">
+                            <div class="mw-edit-content">
+                                <!-- Order Info -->
+                                <div class="mw-edit-section">
+                                    <h4>Order Information</h4>
+                                    <div class="mw-edit-grid">
+                                        <div class="mw-edit-field">
+                                            <label>Order ID</label>
+                                            <input type="text" id="mwEditOrderId" readonly>
+                                        </div>
+                                        <div class="mw-edit-field">
+                                            <label>Status</label>
+                                            <select id="mwEditStatus">
+                                                <option value="completed">Completed</option>
+                                                <option value="draft">Draft</option>
+                                                <option value="cancelled">Cancelled</option>
+                                            </select>
+                                        </div>
+                                        <div class="mw-edit-field">
+                                            <label>Payment Method</label>
+                                            <select id="mwEditPayment">
+                                                <option value="cash">Cash</option>
+                                                <option value="mpesa">M-Pesa</option>
+                                                <option value="bank">Bank Transfer</option>
+                                                <option value="credit">Credit</option>
+                                            </select>
+                                        </div>
+                                        <div class="mw-edit-field">
+                                            <label>Customer</label>
+                                            <input type="text" id="mwEditCustomer" placeholder="Customer name">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Items Section -->
+                                <div class="mw-edit-section">
+                                    <div class="mw-edit-section-header">
+                                        <h4>Order Items</h4>
+                                        <button class="mw-add-item-btn" onclick="addEditOrderItem()">
+                                            <i class="fas fa-plus"></i> Add Item
+                                        </button>
+                                    </div>
+                                    <div class="mw-edit-items-table">
+                                        <table>
+                                            <thead>
+                                                <tr>
+                                                    <th>Product</th>
+                                                    <th>Price</th>
+                                                    <th>Qty</th>
+                                                    <th>Total</th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="mwEditItemsBody">
+                                                <!-- Items loaded dynamically -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <!-- Summary -->
+                                <div class="mw-edit-section">
+                                    <h4>Summary</h4>
+                                    <div class="mw-edit-summary">
+                                        <div class="mw-edit-summary-row">
+                                            <span>Subtotal</span>
+                                            <span id="mwEditSubtotal">Ksh 0.00</span>
+                                        </div>
+                                        <div class="mw-edit-summary-row">
+                                            <span>Discount (Ksh)</span>
+                                            <input type="number" id="mwEditDiscount" value="0" min="0" onchange="recalculateEditTotals()">
+                                        </div>
+                                        <div class="mw-edit-summary-row">
+                                            <span>Tax (%)</span>
+                                            <input type="number" id="mwEditTax" value="0" min="0" max="100" onchange="recalculateEditTotals()">
+                                        </div>
+                                        <div class="mw-edit-summary-row mw-edit-grand-total">
+                                            <span>Grand Total</span>
+                                            <span id="mwEditGrandTotal">Ksh 0.00</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Notes -->
+                                <div class="mw-edit-section">
+                                    <h4>Notes</h4>
+                                    <textarea id="mwEditNotes" placeholder="Order notes..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mw-modal-footer">
+                            <button class="mw-btn-secondary" onclick="closeWholesaleEditModal()">Cancel</button>
+                            <button class="mw-btn-primary" onclick="saveWholesaleOrderEdit()">
+                                <i class="fas fa-save"></i> Save Changes
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -3659,6 +3897,7 @@
     <script type="module" src="js/expense.js"></script>
     <script type="module" src="js/manage-expenses.js"></script>
     <script type="module" src="js/wholesale.js"></script>
+    <script type="module" src="js/manage-wholesale.js"></script>
     <script src="js/admin-panel.js"></script>
     <script src="js/app.js"></script>
 </body>
