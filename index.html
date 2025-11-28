@@ -6,9 +6,34 @@
     <title>PharmaFlow - Pharmacy Management System</title>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Hide everything until auth is confirmed -->
-    <style id="auth-hide-style">
-        .app-container { display: none !important; }
+    <style id="auth-styles">
+        .app-container { opacity: 0; }
+        .auth-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(70, 130, 180, 0.1);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+            transition: opacity 0.2s ease;
+        }
+        .auth-overlay.fade-out { opacity: 0; }
+        .auth-spinner {
+            width: 36px;
+            height: 36px;
+            border: 3px solid rgba(70, 130, 180, 0.3);
+            border-top-color: #4682b4;
+            border-radius: 50%;
+            animation: auth-spin 0.7s linear infinite;
+        }
+        @keyframes auth-spin { to { transform: rotate(360deg); } }
+        .app-container.ready { opacity: 1; transition: opacity 0.15s ease; }
     </style>
     <!-- JsBarcode Library for barcode generation -->
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
@@ -18,7 +43,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <!-- jsPDF AutoTable plugin for tables in PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
-    <!-- Auth Check Script - Redirects to login if not authenticated -->
+    <!-- Auth Check Script -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
@@ -37,20 +62,29 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         
-        // Check auth state immediately
         onAuthStateChanged(auth, (user) => {
+            const overlay = document.getElementById('authOverlay');
+            const appContainer = document.querySelector('.app-container');
+            
             if (!user) {
-                // Not logged in - redirect immediately
                 window.location.replace('login.html');
             } else {
-                // Logged in - remove the hiding style to show the app
-                const hideStyle = document.getElementById('auth-hide-style');
-                if (hideStyle) hideStyle.remove();
+                // Quick fade out overlay and show dashboard
+                if (overlay) {
+                    overlay.classList.add('fade-out');
+                    setTimeout(() => overlay.remove(), 200);
+                }
+                if (appContainer) appContainer.classList.add('ready');
             }
         });
     </script>
 </head>
 <body>
+    <!-- Loading overlay -->
+    <div class="auth-overlay" id="authOverlay">
+        <div class="auth-spinner"></div>
+    </div>
+    
     <div class="app-container">
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">

@@ -457,13 +457,11 @@
                     email: user.email
                 }));
 
-                // Show success and redirect
+                // Show success and redirect immediately
                 loginBtn.classList.add('success');
                 loginBtn.innerHTML = '<i class="fas fa-check"></i> Success';
-
-                setTimeout(() => {
-                    window.location.replace('index.html');
-                }, 400);
+                
+                window.location.replace('index.html');
 
             } catch (error) {
                 const errorMessages = {

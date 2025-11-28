@@ -981,17 +981,14 @@ button {
 .stat-card {
     background-color: var(--surface-color);
     border: 1px solid var(--border-color);
-    border-radius: 12px;
     padding: 20px;
     display: flex;
     align-items: center;
     gap: 16px;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .stat-card:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
+    box-shadow: var(--shadow);
 }
 
 .stat-icon {
@@ -2118,23 +2115,19 @@ button {
 .sales-stat-card {
     background-color: var(--surface-color);
     border: 1px solid var(--border-color);
-    border-radius: 12px;
     padding: 20px;
     display: flex;
     align-items: center;
     gap: 16px;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .sales-stat-card:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
+    box-shadow: var(--shadow);
 }
 
 .sales-stat-icon {
     width: 52px;
     height: 52px;
-    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -4350,7 +4343,7 @@ button {
     margin-bottom: 28px;
 }
 
-/* Inventory stat cards with theme support */
+/* Inventory stat cards - override base stat-card styles */
 .inventory-stats .stat-card {
     padding: 24px;
     display: flex;
@@ -4358,6 +4351,13 @@ button {
     gap: 18px;
     background-color: var(--surface-color);
     border: 1px solid var(--border-color);
+    border-radius: 0;
+    transition: none;
+}
+
+.inventory-stats .stat-card:hover {
+    transform: none;
+    box-shadow: none;
 }
 
 .inventory-stats .stat-card.total {
@@ -4882,26 +4882,27 @@ button {
     }
     
     .inventory-toolbar {
-        flex-direction: column;
-        align-items: stretch;
-    }
-    
-    .search-box {
-        max-width: none;
-    }
-    
-    .filter-group {
+        flex-direction: row;
+        align-items: center;
         flex-wrap: wrap;
     }
     
+    .search-box {
+        max-width: 300px;
+    }
+    
+    .filter-group {
+        display: flex;
+        flex-direction: row;
+        gap: 12px;
+    }
+    
     .filter-group select {
-        flex: 1;
         min-width: 120px;
     }
     
     .toolbar-actions {
-        margin-left: 0;
-        justify-content: flex-end;
+        margin-left: auto;
     }
 }
 
@@ -14524,21 +14525,21 @@ button {
     border: 1px solid var(--border-color);
 }
 
-.filter-group {
+.activities-filters .filter-group {
     display: flex;
     flex-direction: column;
     gap: 6px;
     min-width: 150px;
 }
 
-.filter-group label {
+.activities-filters .filter-group label {
     font-size: 12px;
     font-weight: 600;
     color: var(--text-secondary);
     text-transform: uppercase;
 }
 
-.filter-group .form-control {
+.activities-filters .filter-group .form-control {
     padding: 10px 14px;
     border: 1px solid var(--border-color);
     border-radius: 8px;
@@ -14548,22 +14549,22 @@ button {
     transition: border-color 0.1s ease, box-shadow 0.1s ease;
 }
 
-.filter-group .form-control:focus {
+.activities-filters .filter-group .form-control:focus {
     outline: none;
     border-color: var(--primary-color);
     box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
 }
 
-.filter-group.search-group {
+.activities-filters .filter-group.search-group {
     flex: 1;
     min-width: 250px;
 }
 
-.search-input-wrapper {
+.activities-filters .search-input-wrapper {
     position: relative;
 }
 
-.search-input-wrapper i {
+.activities-filters .search-input-wrapper i {
     position: absolute;
     left: 14px;
     top: 50%;
@@ -14571,11 +14572,11 @@ button {
     color: var(--text-secondary);
 }
 
-.search-input-wrapper .form-control {
+.activities-filters .search-input-wrapper .form-control {
     padding-left: 40px;
 }
 
-.filter-group.filter-actions {
+.activities-filters .filter-group.filter-actions {
     justify-content: flex-end;
     min-width: auto;
 }
@@ -15038,7 +15039,7 @@ button {
         flex-direction: column;
     }
 
-    .filter-group {
+    .activities-filters .filter-group {
         min-width: 100%;
     }
 
