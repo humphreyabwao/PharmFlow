@@ -11943,3 +11943,538 @@ button {
         max-width: 100%;
     }
 }
+
+/* =============================================
+   ACCOUNTS MODULE STYLES
+   ============================================= */
+
+/* Header Layout */
+#module-reports-accounts .module-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.acc-header-text h1 {
+    margin-bottom: 5px;
+}
+
+.acc-header-text p {
+    margin: 0;
+}
+
+.acc-header-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.acc-refresh-btn,
+.acc-export-btn {
+    padding: 10px 16px;
+    border: none;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.15s ease;
+}
+
+.acc-refresh-btn {
+    background-color: #3b82f6;
+    color: white;
+}
+
+.acc-refresh-btn:hover {
+    background-color: #2563eb;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.acc-export-btn {
+    background-color: #f43f5e;
+    color: white;
+}
+
+.acc-export-btn:hover {
+    background-color: #e11d48;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(244, 63, 94, 0.4);
+}
+
+/* Revenue Cards */
+.acc-revenue-cards {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.acc-revenue-card {
+    padding: 20px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    overflow: hidden;
+}
+
+.acc-card-green {
+    background-color: #22c55e;
+    color: white;
+}
+
+.acc-card-blue {
+    background-color: #3b82f6;
+    color: white;
+}
+
+.acc-card-purple {
+    background-color: #8b5cf6;
+    color: white;
+}
+
+.acc-card-red {
+    background-color: #f43f5e;
+    color: white;
+}
+
+.acc-card-amber {
+    background-color: #f59e0b;
+    color: white;
+}
+
+.acc-card-icon {
+    width: 45px;
+    height: 45px;
+    background-color: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+.acc-card-content {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.acc-card-value {
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.acc-card-label {
+    font-size: 12px;
+    opacity: 0.9;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.acc-card-trend {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 8px;
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.acc-card-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 4px 8px;
+    background-color: rgba(255, 255, 255, 0.2);
+    letter-spacing: 0.5px;
+}
+
+/* Reconciliation Section */
+.acc-reconciliation {
+    background-color: var(--surface-color);
+    border: 1px solid var(--border-color);
+    padding: 25px;
+    margin-bottom: 30px;
+}
+
+.acc-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.acc-section-header h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.acc-section-header h3 i {
+    color: #3b82f6;
+}
+
+.acc-live-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background-color: #dcfce7;
+    color: #16a34a;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.acc-live-badge i {
+    font-size: 8px;
+    animation: acc-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes acc-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+[data-theme="dark"] .acc-live-badge {
+    background-color: rgba(34, 197, 94, 0.15);
+}
+
+.acc-recon-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+}
+
+.acc-recon-panel {
+    background-color: var(--background-color);
+    padding: 20px;
+    border: 1px solid var(--border-color);
+}
+
+.acc-recon-panel h4 {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.acc-recon-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.acc-recon-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px dashed var(--border-color);
+}
+
+.acc-recon-item:last-of-type {
+    border-bottom: none;
+}
+
+.acc-recon-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.acc-recon-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: #22c55e;
+}
+
+.acc-recon-value.acc-expense {
+    color: #f43f5e;
+}
+
+.acc-recon-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0 0;
+    margin-top: 10px;
+    border-top: 2px solid #22c55e;
+    font-size: 15px;
+    font-weight: 700;
+    color: #22c55e;
+}
+
+.acc-recon-total.acc-expense-total {
+    border-top-color: #f43f5e;
+    color: #f43f5e;
+}
+
+/* Summary Panel */
+.acc-summary-panel {
+    background-color: #f0fdf4;
+    border-color: #22c55e;
+}
+
+[data-theme="dark"] .acc-summary-panel {
+    background-color: rgba(34, 197, 94, 0.1);
+}
+
+.acc-summary-content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.acc-summary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.acc-income-item {
+    background-color: #dcfce7;
+    color: #16a34a;
+}
+
+.acc-expense-item {
+    background-color: #fee2e2;
+    color: #dc2626;
+}
+
+[data-theme="dark"] .acc-income-item {
+    background-color: rgba(34, 197, 94, 0.2);
+}
+
+[data-theme="dark"] .acc-expense-item {
+    background-color: rgba(244, 63, 94, 0.2);
+}
+
+.acc-summary-divider {
+    height: 2px;
+    background: linear-gradient(90deg, #22c55e, #f59e0b);
+    margin: 5px 0;
+}
+
+.acc-profit-item {
+    background-color: #22c55e;
+    color: white;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.acc-profit-item.acc-loss {
+    background-color: #f43f5e;
+}
+
+.acc-profit-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px;
+    background-color: white;
+    color: #22c55e;
+    font-size: 13px;
+    font-weight: 600;
+    border: 2px solid #22c55e;
+}
+
+.acc-profit-indicator.acc-loss-indicator {
+    color: #f43f5e;
+    border-color: #f43f5e;
+}
+
+[data-theme="dark"] .acc-profit-indicator {
+    background-color: var(--surface-color);
+}
+
+/* Today's Transactions */
+.acc-transactions {
+    background-color: var(--surface-color);
+    border: 1px solid var(--border-color);
+    padding: 25px;
+}
+
+.acc-date-badge {
+    padding: 6px 12px;
+    background-color: #3b82f6;
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.acc-trans-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+.acc-trans-card {
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    border: 2px solid;
+    transition: all 0.2s ease;
+}
+
+.acc-trans-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+.acc-trans-sales {
+    background-color: #eff6ff;
+    border-color: #3b82f6;
+}
+
+.acc-trans-sales .acc-trans-icon {
+    background-color: #3b82f6;
+    color: white;
+}
+
+.acc-trans-wholesale {
+    background-color: #f5f3ff;
+    border-color: #8b5cf6;
+}
+
+.acc-trans-wholesale .acc-trans-icon {
+    background-color: #8b5cf6;
+    color: white;
+}
+
+.acc-trans-expenses {
+    background-color: #fef2f2;
+    border-color: #f43f5e;
+}
+
+.acc-trans-expenses .acc-trans-icon {
+    background-color: #f43f5e;
+    color: white;
+}
+
+.acc-trans-profit {
+    background-color: #f0fdf4;
+    border-color: #22c55e;
+}
+
+.acc-trans-profit .acc-trans-icon {
+    background-color: #22c55e;
+    color: white;
+}
+
+[data-theme="dark"] .acc-trans-sales {
+    background-color: rgba(59, 130, 246, 0.1);
+}
+
+[data-theme="dark"] .acc-trans-wholesale {
+    background-color: rgba(139, 92, 246, 0.1);
+}
+
+[data-theme="dark"] .acc-trans-expenses {
+    background-color: rgba(244, 63, 94, 0.1);
+}
+
+[data-theme="dark"] .acc-trans-profit {
+    background-color: rgba(34, 197, 94, 0.1);
+}
+
+.acc-trans-icon {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+.acc-trans-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex: 1;
+}
+
+.acc-trans-count {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.acc-trans-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.acc-trans-amount {
+    font-size: 16px;
+    font-weight: 700;
+    color: #22c55e;
+}
+
+.acc-trans-amount.acc-expense {
+    color: #f43f5e;
+}
+
+/* Responsive */
+@media screen and (max-width: 1400px) {
+    .acc-revenue-cards {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media screen and (max-width: 1200px) {
+    .acc-recon-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+    
+    .acc-summary-panel {
+        grid-column: 1 / -1;
+    }
+    
+    .acc-trans-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .acc-revenue-cards {
+        grid-template-columns: 1fr;
+    }
+    
+    .acc-recon-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .acc-trans-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .acc-header-actions {
+        flex-wrap: wrap;
+    }
+}

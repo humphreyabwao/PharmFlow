@@ -191,6 +191,12 @@
                                     <span>Generate Report</span>
                                 </a>
                             </li>
+                            <li class="submenu-item">
+                                <a href="#" class="submenu-link" data-module="reports-accounts">
+                                    <i class="fas fa-calculator"></i>
+                                    <span>Accounts</span>
+                                </a>
+                            </li>
                         </ul>
                     </li>
                     <li class="nav-item has-submenu">
@@ -3384,6 +3390,239 @@
                     </div>
                 </div>
 
+                <!-- Accounts Module -->
+                <div class="module-content" id="module-reports-accounts">
+                    <div class="module-header">
+                        <div class="acc-header-text">
+                            <h1>Accounts</h1>
+                            <p>Financial reconciliation and revenue tracking</p>
+                        </div>
+                        <div class="acc-header-actions">
+                            <button class="acc-refresh-btn" onclick="refreshAccountsData()">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                            <button class="acc-export-btn" onclick="exportAccountsReport()">
+                                <i class="fas fa-file-pdf"></i> Export PDF
+                            </button>
+                        </div>
+                    </div>
+                    <div class="module-body">
+                        <!-- Revenue Overview Cards -->
+                        <div class="acc-revenue-cards">
+                            <div class="acc-revenue-card acc-card-green">
+                                <div class="acc-card-icon">
+                                    <i class="fas fa-coins"></i>
+                                </div>
+                                <div class="acc-card-content">
+                                    <span class="acc-card-value" id="accTotalRevenue">Ksh 0.00</span>
+                                    <span class="acc-card-label">Total Revenue</span>
+                                </div>
+                                <div class="acc-card-trend acc-trend-up">
+                                    <i class="fas fa-arrow-up"></i>
+                                    <span id="accRevenueTrend">0%</span>
+                                </div>
+                            </div>
+                            <div class="acc-revenue-card acc-card-blue">
+                                <div class="acc-card-icon">
+                                    <i class="fas fa-shopping-cart"></i>
+                                </div>
+                                <div class="acc-card-content">
+                                    <span class="acc-card-value" id="accRetailSales">Ksh 0.00</span>
+                                    <span class="acc-card-label">Retail Sales</span>
+                                </div>
+                                <div class="acc-card-badge">POS</div>
+                            </div>
+                            <div class="acc-revenue-card acc-card-purple">
+                                <div class="acc-card-icon">
+                                    <i class="fas fa-truck"></i>
+                                </div>
+                                <div class="acc-card-content">
+                                    <span class="acc-card-value" id="accWholesaleSales">Ksh 0.00</span>
+                                    <span class="acc-card-label">Wholesale Sales</span>
+                                </div>
+                                <div class="acc-card-badge">WHOLESALE</div>
+                            </div>
+                            <div class="acc-revenue-card acc-card-red">
+                                <div class="acc-card-icon">
+                                    <i class="fas fa-receipt"></i>
+                                </div>
+                                <div class="acc-card-content">
+                                    <span class="acc-card-value" id="accTotalExpenses">Ksh 0.00</span>
+                                    <span class="acc-card-label">Total Expenses</span>
+                                </div>
+                                <div class="acc-card-badge">APPROVED</div>
+                            </div>
+                            <div class="acc-revenue-card acc-card-amber">
+                                <div class="acc-card-icon">
+                                    <i class="fas fa-balance-scale"></i>
+                                </div>
+                                <div class="acc-card-content">
+                                    <span class="acc-card-value" id="accNetProfit">Ksh 0.00</span>
+                                    <span class="acc-card-label">Net Profit</span>
+                                </div>
+                                <div class="acc-card-trend acc-trend-up" id="accProfitTrend">
+                                    <i class="fas fa-arrow-up"></i>
+                                    <span>Profit</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Reconciliation Section -->
+                        <div class="acc-reconciliation">
+                            <div class="acc-section-header">
+                                <h3><i class="fas fa-check-double"></i> Account Reconciliation</h3>
+                                <span class="acc-live-badge"><i class="fas fa-circle"></i> Live</span>
+                            </div>
+                            
+                            <div class="acc-recon-grid">
+                                <!-- Income Breakdown -->
+                                <div class="acc-recon-panel">
+                                    <h4>Income Breakdown</h4>
+                                    <div class="acc-recon-list">
+                                        <div class="acc-recon-item">
+                                            <span class="acc-recon-label">
+                                                <i class="fas fa-cash-register" style="color: #22c55e;"></i>
+                                                Cash Payments
+                                            </span>
+                                            <span class="acc-recon-value" id="accCashIncome">Ksh 0.00</span>
+                                        </div>
+                                        <div class="acc-recon-item">
+                                            <span class="acc-recon-label">
+                                                <i class="fas fa-mobile-alt" style="color: #3b82f6;"></i>
+                                                M-Pesa Payments
+                                            </span>
+                                            <span class="acc-recon-value" id="accMpesaIncome">Ksh 0.00</span>
+                                        </div>
+                                        <div class="acc-recon-item">
+                                            <span class="acc-recon-label">
+                                                <i class="fas fa-university" style="color: #f59e0b;"></i>
+                                                Bank Transfers
+                                            </span>
+                                            <span class="acc-recon-value" id="accBankIncome">Ksh 0.00</span>
+                                        </div>
+                                        <div class="acc-recon-item">
+                                            <span class="acc-recon-label">
+                                                <i class="fas fa-credit-card" style="color: #ec4899;"></i>
+                                                Credit Sales
+                                            </span>
+                                            <span class="acc-recon-value" id="accCreditIncome">Ksh 0.00</span>
+                                        </div>
+                                        <div class="acc-recon-total">
+                                            <span>Total Income</span>
+                                            <span id="accTotalIncome">Ksh 0.00</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Expense Breakdown -->
+                                <div class="acc-recon-panel">
+                                    <h4>Expense Breakdown</h4>
+                                    <div class="acc-recon-list">
+                                        <div class="acc-recon-item">
+                                            <span class="acc-recon-label">
+                                                <i class="fas fa-boxes" style="color: #8b5cf6;"></i>
+                                                Inventory/Stock
+                                            </span>
+                                            <span class="acc-recon-value acc-expense" id="accInventoryExpense">Ksh 0.00</span>
+                                        </div>
+                                        <div class="acc-recon-item">
+                                            <span class="acc-recon-label">
+                                                <i class="fas fa-lightbulb" style="color: #f59e0b;"></i>
+                                                Utilities
+                                            </span>
+                                            <span class="acc-recon-value acc-expense" id="accUtilitiesExpense">Ksh 0.00</span>
+                                        </div>
+                                        <div class="acc-recon-item">
+                                            <span class="acc-recon-label">
+                                                <i class="fas fa-users" style="color: #06b6d4;"></i>
+                                                Salaries
+                                            </span>
+                                            <span class="acc-recon-value acc-expense" id="accSalariesExpense">Ksh 0.00</span>
+                                        </div>
+                                        <div class="acc-recon-item">
+                                            <span class="acc-recon-label">
+                                                <i class="fas fa-ellipsis-h" style="color: #6b7280;"></i>
+                                                Other Expenses
+                                            </span>
+                                            <span class="acc-recon-value acc-expense" id="accOtherExpense">Ksh 0.00</span>
+                                        </div>
+                                        <div class="acc-recon-total acc-expense-total">
+                                            <span>Total Expenses</span>
+                                            <span id="accTotalExpensesRecon">Ksh 0.00</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Summary Panel -->
+                                <div class="acc-recon-panel acc-summary-panel">
+                                    <h4>Profit & Loss Summary</h4>
+                                    <div class="acc-summary-content">
+                                        <div class="acc-summary-item acc-income-item">
+                                            <span>Total Income</span>
+                                            <span id="accSummaryIncome">Ksh 0.00</span>
+                                        </div>
+                                        <div class="acc-summary-item acc-expense-item">
+                                            <span>Total Expenses</span>
+                                            <span id="accSummaryExpense">Ksh 0.00</span>
+                                        </div>
+                                        <div class="acc-summary-divider"></div>
+                                        <div class="acc-summary-item acc-profit-item" id="accProfitLossRow">
+                                            <span>Net Profit</span>
+                                            <span id="accSummaryProfit">Ksh 0.00</span>
+                                        </div>
+                                        <div class="acc-profit-indicator" id="accProfitIndicator">
+                                            <i class="fas fa-check-circle"></i>
+                                            <span>Healthy Finances</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Today's Transactions -->
+                        <div class="acc-transactions">
+                            <div class="acc-section-header">
+                                <h3><i class="fas fa-clock"></i> Today's Transactions</h3>
+                                <span class="acc-date-badge" id="accTodayDate">Nov 28, 2025</span>
+                            </div>
+                            <div class="acc-trans-grid">
+                                <div class="acc-trans-card acc-trans-sales">
+                                    <div class="acc-trans-icon"><i class="fas fa-shopping-bag"></i></div>
+                                    <div class="acc-trans-info">
+                                        <span class="acc-trans-count" id="accTodaySalesCount">0</span>
+                                        <span class="acc-trans-label">Sales Today</span>
+                                    </div>
+                                    <span class="acc-trans-amount" id="accTodaySalesAmount">Ksh 0.00</span>
+                                </div>
+                                <div class="acc-trans-card acc-trans-wholesale">
+                                    <div class="acc-trans-icon"><i class="fas fa-truck-loading"></i></div>
+                                    <div class="acc-trans-info">
+                                        <span class="acc-trans-count" id="accTodayWholesaleCount">0</span>
+                                        <span class="acc-trans-label">Wholesale Orders</span>
+                                    </div>
+                                    <span class="acc-trans-amount" id="accTodayWholesaleAmount">Ksh 0.00</span>
+                                </div>
+                                <div class="acc-trans-card acc-trans-expenses">
+                                    <div class="acc-trans-icon"><i class="fas fa-money-bill-wave"></i></div>
+                                    <div class="acc-trans-info">
+                                        <span class="acc-trans-count" id="accTodayExpenseCount">0</span>
+                                        <span class="acc-trans-label">Expenses Logged</span>
+                                    </div>
+                                    <span class="acc-trans-amount acc-expense" id="accTodayExpenseAmount">Ksh 0.00</span>
+                                </div>
+                                <div class="acc-trans-card acc-trans-profit">
+                                    <div class="acc-trans-icon"><i class="fas fa-chart-line"></i></div>
+                                    <div class="acc-trans-info">
+                                        <span class="acc-trans-count" id="accTodayProfitPercent">0%</span>
+                                        <span class="acc-trans-label">Profit Margin</span>
+                                    </div>
+                                    <span class="acc-trans-amount" id="accTodayNetProfit">Ksh 0.00</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Admin Module -->
                 <div class="module-content" id="module-admin">
                     <div class="module-header">
@@ -3898,6 +4137,7 @@
     <script type="module" src="js/manage-expenses.js"></script>
     <script type="module" src="js/wholesale.js"></script>
     <script type="module" src="js/manage-wholesale.js"></script>
+    <script type="module" src="js/accounts.js"></script>
     <script src="js/admin-panel.js"></script>
     <script src="js/app.js"></script>
 </body>
