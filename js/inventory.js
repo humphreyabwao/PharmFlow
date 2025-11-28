@@ -259,6 +259,9 @@ import {
                 });
             });
             console.info(`Inventory updated: ${state.inventory.length} items`);
+            document.dispatchEvent(new CustomEvent('pharmaflow-inventory-updated', {
+                detail: state.inventory.map(item => ({ ...item }))
+            }));
         }, (error) => {
             console.error('Error listening to inventory:', error);
         });

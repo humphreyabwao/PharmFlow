@@ -100,7 +100,7 @@
                             <li class="submenu-item">
                                 <a href="#" class="submenu-link" data-module="orders-view">
                                     <i class="fas fa-list-alt"></i>
-                                    <span>View Orders</span>
+                                    <span>Manage Orders</span>
                                 </a>
                             </li>
                             <li class="submenu-item">
@@ -1706,27 +1706,135 @@
                 <div class="module-content" id="module-orders-create">
                     <div class="module-header">
                         <h1>Create Order</h1>
-                        <p>Create a new order</p>
+                        <p>Create a new order from supplier</p>
                     </div>
                     <div class="module-body">
-                        <div class="placeholder-content">
-                            <i class="fas fa-plus"></i>
-                            <h2>Create Order Module</h2>
-                            <p>This module is ready for future implementation.</p>
+                        <div class="order-create-container">
+                            <!-- Left Section: Supplier & Items -->
+                            <div class="order-left-section">
+                                <!-- Supplier Selection -->
+                                <div class="order-section">
+                                    <h2 class="section-title">Supplier Information</h2>
+                                    <div class="supplier-dropdown-box">
+                                        <label for="supplierDropdown">Select Supplier *</label>
+                                        <select id="supplierDropdown">
+                                            <option value="">-- Select Supplier --</option>
+                                        </select>
+                                    </div>
+                                    <div class="selected-supplier" id="selectedSupplierCard" style="display: none;">
+                                        <div class="supplier-info">
+                                            <h3 id="selectedSupplierName"></h3>
+                                            <p id="selectedSupplierContact"></p>
+                                            <p id="selectedSupplierPhone"></p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Add Items Section -->
+                                <div class="order-section">
+                                    <h2 class="section-title">Add Items</h2>
+                                    
+                                    <!-- Search Inventory -->
+                                    <div class="search-inventory-section">
+                                        <input type="text" id="orderItemSearch" placeholder="Type to search inventory items..." autocomplete="off">
+                                        <div id="orderSearchResults" class="search-results"></div>
+                                    </div>
+
+                                    <!-- Manual Add Form -->
+                                    <div class="manual-add-form">
+                                        <h3>Or Add Manually</h3>
+                                        <div class="form-row">
+                                            <input type="text" id="manualItemName" placeholder="Item name">
+                                            <input type="text" id="manualItemDosage" placeholder="Dosage">
+                                        </div>
+                                        <div class="form-row">
+                                            <input type="number" id="manualItemQuantity" placeholder="Quantity" min="1">
+                                            <input type="number" id="manualItemPrice" placeholder="Unit Price" step="0.01" min="0">
+                                        </div>
+                                        <button class="btn-primary" id="addManualItemBtn">
+                                            <i class="fas fa-plus"></i> Add Item
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Inventory Browser -->
+                                <div class="order-section">
+                                    <h2 class="section-title">
+                                        Inventory Status
+                                        <button class="btn-refresh" id="refreshInventoryBtn">
+                                            <i class="fas fa-sync-alt"></i>
+                                        </button>
+                                    </h2>
+                                    <div class="inventory-filters">
+                                        <button class="filter-btn active" data-filter="all">All</button>
+                                        <button class="filter-btn" data-filter="low">Low Stock</button>
+                                        <button class="filter-btn" data-filter="out">Out of Stock</button>
+                                    </div>
+                                    <div class="inventory-list" id="inventoryList">
+                                        <div class="loading-state">
+                                            <i class="fas fa-spinner fa-spin"></i>
+                                            <p>Loading inventory...</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Right Section: Preview -->
+                            <div class="order-right-section">
+                                <div class="order-preview">
+                                    <h2 class="section-title">Order Preview</h2>
+                                    
+                                    <div class="order-items-list" id="orderItemsList">
+                                        <div class="empty-order">
+                                            <i class="fas fa-shopping-cart"></i>
+                                            <p>No items added yet</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="order-summary">
+                                        <div class="summary-row">
+                                            <span>Total Items:</span>
+                                            <span id="totalItems">0</span>
+                                        </div>
+                                        <div class="summary-row">
+                                            <span>Total Quantity:</span>
+                                            <span id="totalQuantity">0</span>
+                                        </div>
+                                        <div class="summary-row total-row">
+                                            <span>Total Amount:</span>
+                                            <span id="totalAmount">KSH 0.00</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="order-notes">
+                                        <label for="orderNotes">Order Notes</label>
+                                        <textarea id="orderNotes" placeholder="Add any additional notes..." rows="3"></textarea>
+                                    </div>
+
+                                    <div class="order-actions">
+                                        <button class="btn-primary" id="createOrderBtn" disabled>
+                                            <i class="fas fa-check"></i> Create Order
+                                        </button>
+                                        <button class="btn-secondary" id="clearOrderBtn">
+                                            <i class="fas fa-times"></i> Clear All
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- View Orders Module -->
+                <!-- Manage Orders Module -->
                 <div class="module-content" id="module-orders-view">
                     <div class="module-header">
-                        <h1>View Orders</h1>
+                        <h1>Manage Orders</h1>
                         <p>Browse and manage all orders</p>
                     </div>
                     <div class="module-body">
                         <div class="placeholder-content">
                             <i class="fas fa-list-alt"></i>
-                            <h2>View Orders Module</h2>
+                            <h2>Manage Orders Module</h2>
                             <p>This module is ready for future implementation.</p>
                         </div>
                     </div>
@@ -1744,7 +1852,7 @@
                                 <i class="fas fa-plus-circle"></i> Create Order
                             </button>
                             <button class="btn-module-action btn-view-orders" data-module="orders-view">
-                                <i class="fas fa-list"></i> View Orders
+                                <i class="fas fa-list"></i> Manage Orders
                             </button>
                         </div>
                     </div>
@@ -2535,6 +2643,7 @@
     <script type="module" src="js/inventory.js"></script>
     <script type="module" src="js/inventory-view.js"></script>
     <script type="module" src="js/supplier.js"></script>
+    <script type="module" src="js/order.js"></script>
     <script src="js/admin-panel.js"></script>
     <script src="js/app.js"></script>
 </body>

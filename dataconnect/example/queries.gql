@@ -33,3 +33,77 @@ query FindMedication($id: UUID!) @auth(level: USER) {
     unitPrice
   }
 }
+
+# Supplier Queries
+query ListSuppliers @auth(level: USER) {
+  suppliers {
+    id
+    name
+    contactPerson
+    contactNumber
+    address
+    email
+    category
+    status
+  }
+}
+
+mutation AddSupplier($name: String!, $contactPerson: String!, $contactNumber: String!, $address: String, $email: String, $category: String, $status: String) @auth(level: USER) {
+  supplier_insert(data: {name: $name, contactPerson: $contactPerson, contactNumber: $contactNumber, address: $address, email: $email, category: $category, status: $status})
+}
+
+# Order Queries
+query ListOrders @auth(level: USER) {
+  orders {
+    id
+    orderNumber
+    orderDate
+    supplier {
+      id
+      name
+      contactPerson
+    }
+    totalAmount
+    status
+    notes
+  }
+}
+
+query GetOrderDetails($id: UUID!) @auth(level: USER) {
+  order(id: $id) {
+    id
+    orderNumber
+    orderDate
+    supplier {
+      id
+      name
+      contactPerson
+      contactNumber
+    }
+    totalAmount
+    status
+    notes
+  }
+}
+
+mutation CreateOrder($orderNumber: String!, $orderDate: Timestamp!, $supplier_id: UUID!, $totalAmount: Float!, $status: String!, $notes: String) @auth(level: USER) {
+  order_insert(data: {orderNumber: $orderNumber, orderDate: $orderDate, supplier_id: $supplier_id, totalAmount: $totalAmount, status: $status, notes: $notes})
+}
+
+# Order Items Queries
+query GetOrderItems($orderId: UUID!) @auth(level: USER) {
+  orderItems(where: {order_id: {eq: $orderId}}) {
+    medication {
+      id
+      name
+      dosage
+    }
+    quantity
+    unitPrice
+    subtotal
+  }
+}
+
+mutation AddOrderItem($order_id: UUID!, $medication_id: UUID!, $quantity: Int!, $unitPrice: Float!, $subtotal: Float!) @auth(level: USER) {
+  orderItem_insert(data: {order_id: $order_id, medication_id: $medication_id, quantity: $quantity, unitPrice: $unitPrice, subtotal: $subtotal})
+}

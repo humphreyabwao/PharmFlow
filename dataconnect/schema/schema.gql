@@ -40,4 +40,23 @@ type Supplier @table {
   contactNumber: String!
   address: String
   email: String
+  category: String
+  status: String
+}
+
+type Order @table {
+  orderNumber: String!
+  orderDate: Timestamp!
+  supplier: Supplier!
+  totalAmount: Float!
+  status: String!
+  notes: String
+}
+
+type OrderItem @table(key: ["order", "medication"]) {
+  order: Order!
+  medication: Medication!
+  quantity: Int!
+  unitPrice: Float!
+  subtotal: Float!
 }
