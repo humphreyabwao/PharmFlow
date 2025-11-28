@@ -1016,14 +1016,196 @@
                 <!-- All Activities Module -->
                 <div class="module-content" id="module-all-activities">
                     <div class="module-header">
-                        <h1>All Activities</h1>
-                        <p>Complete history of system activities</p>
+                        <div class="module-header-content">
+                            <div>
+                                <h1>All Activities</h1>
+                                <p>Complete history of system activities</p>
+                            </div>
+                            <div class="module-header-actions">
+                                <button class="btn btn-secondary" id="refreshActivitiesBtn">
+                                    <i class="fas fa-sync-alt"></i>
+                                    <span>Refresh</span>
+                                </button>
+                                <button class="btn btn-primary" id="exportActivitiesBtn">
+                                    <i class="fas fa-download"></i>
+                                    <span>Export</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                     <div class="module-body">
-                        <div class="placeholder-content">
-                            <i class="fas fa-history"></i>
-                            <h2>All Activities Module</h2>
-                            <p>This module is ready for future implementation.</p>
+                        <!-- Activity Filters -->
+                        <div class="activities-filters">
+                            <div class="filter-group">
+                                <label for="activityTypeFilter">Type</label>
+                                <select id="activityTypeFilter" class="form-control">
+                                    <option value="">All Types</option>
+                                    <option value="sale">Sales</option>
+                                    <option value="inventory">Inventory</option>
+                                    <option value="order">Orders</option>
+                                    <option value="expense">Expenses</option>
+                                    <option value="customer">Customers</option>
+                                    <option value="wholesale">Wholesale</option>
+                                    <option value="prescription">Prescriptions</option>
+                                    <option value="system">System</option>
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <label for="activityStatusFilter">Status</label>
+                                <select id="activityStatusFilter" class="form-control">
+                                    <option value="">All Status</option>
+                                    <option value="completed">Completed</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="warning">Warning</option>
+                                    <option value="failed">Failed</option>
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <label for="activityDateFrom">From Date</label>
+                                <input type="date" id="activityDateFrom" class="form-control">
+                            </div>
+                            <div class="filter-group">
+                                <label for="activityDateTo">To Date</label>
+                                <input type="date" id="activityDateTo" class="form-control">
+                            </div>
+                            <div class="filter-group search-group">
+                                <label for="activitySearchInput">Search</label>
+                                <div class="search-input-wrapper">
+                                    <i class="fas fa-search"></i>
+                                    <input type="text" id="activitySearchInput" class="form-control" placeholder="Search activities...">
+                                </div>
+                            </div>
+                            <div class="filter-group filter-actions">
+                                <button class="btn btn-secondary btn-sm" id="clearActivityFiltersBtn">
+                                    <i class="fas fa-times"></i> Clear
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Activity Stats -->
+                        <div class="activity-stats-row">
+                            <div class="activity-stat-card">
+                                <div class="stat-icon success">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <span class="stat-value" id="completedActivitiesCount">0</span>
+                                    <span class="stat-label">Completed</span>
+                                </div>
+                            </div>
+                            <div class="activity-stat-card">
+                                <div class="stat-icon warning">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <span class="stat-value" id="pendingActivitiesCount">0</span>
+                                    <span class="stat-label">Pending</span>
+                                </div>
+                            </div>
+                            <div class="activity-stat-card">
+                                <div class="stat-icon primary">
+                                    <i class="fas fa-history"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <span class="stat-value" id="todayActivitiesCount">0</span>
+                                    <span class="stat-label">Today</span>
+                                </div>
+                            </div>
+                            <div class="activity-stat-card">
+                                <div class="stat-icon info">
+                                    <i class="fas fa-list"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <span class="stat-value" id="totalActivitiesCount">0</span>
+                                    <span class="stat-label">Total</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Activities Table -->
+                        <div class="activities-table-container">
+                            <div class="table-loading" id="activitiesLoadingState" style="display: none;">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                <span>Loading activities...</span>
+                            </div>
+                            <div class="table-empty" id="activitiesEmptyState" style="display: none;">
+                                <i class="fas fa-inbox"></i>
+                                <h3>No Activities Found</h3>
+                                <p>There are no activities matching your filters.</p>
+                            </div>
+                            <div class="activities-table-wrapper" id="activitiesTableWrapper">
+                                <table class="activities-table" id="allActivitiesTable">
+                                    <thead>
+                                        <tr>
+                                            <th class="sortable" data-sort="time">
+                                                <span>Time</span>
+                                                <i class="fas fa-sort"></i>
+                                            </th>
+                                            <th>Type</th>
+                                            <th>Activity</th>
+                                            <th>Description</th>
+                                            <th>User</th>
+                                            <th class="sortable" data-sort="amount">
+                                                <span>Amount</span>
+                                                <i class="fas fa-sort"></i>
+                                            </th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="allActivitiesTableBody">
+                                        <!-- Activities will be populated here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Pagination -->
+                        <div class="activities-pagination">
+                            <div class="pagination-info">
+                                <span>Showing <strong id="activitiesShowingFrom">0</strong> to <strong id="activitiesShowingTo">0</strong> of <strong id="activitiesTotalCount">0</strong> activities</span>
+                            </div>
+                            <div class="pagination-controls">
+                                <button class="pagination-btn" id="activitiesPrevBtn" disabled>
+                                    <i class="fas fa-chevron-left"></i>
+                                </button>
+                                <div class="pagination-pages" id="activitiesPaginationPages">
+                                    <!-- Page numbers will be populated here -->
+                                </div>
+                                <button class="pagination-btn" id="activitiesNextBtn" disabled>
+                                    <i class="fas fa-chevron-right"></i>
+                                </button>
+                            </div>
+                            <div class="pagination-size">
+                                <label>Per page:</label>
+                                <select id="activitiesPageSize" class="form-control">
+                                    <option value="10">10</option>
+                                    <option value="25" selected>25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Activity Details Modal -->
+                        <div class="activity-modal-overlay" id="activityDetailsModal">
+                            <div class="activity-modal-container">
+                                <div class="activity-modal-header">
+                                    <h3><i class="fas fa-info-circle"></i> Activity Details</h3>
+                                    <button class="activity-modal-close" id="closeActivityDetailsModal">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                                <div class="activity-modal-body" id="activityDetailsContent">
+                                    <!-- Activity details will be populated here -->
+                                </div>
+                                <div class="activity-modal-footer">
+                                    <button class="btn btn-secondary" id="closeActivityDetailsBtn">Close</button>
+                                    <button class="btn btn-primary" id="goToActivityModuleBtn">
+                                        <i class="fas fa-external-link-alt"></i> Go to Module
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -4852,6 +5034,8 @@
 
     <!-- Firebase SDK -->
     <script type="module" src="js/firebase-config.js"></script>
+    <script type="module" src="js/notifications.js"></script>
+    <script type="module" src="js/all-activities.js"></script>
     <script type="module" src="js/dashboard.js"></script>
     <script type="module" src="js/sales.js"></script>
     <script type="module" src="js/all-sales.js"></script>

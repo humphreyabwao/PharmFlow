@@ -199,10 +199,16 @@
     }
 
     function markAllNotificationsRead() {
-        document.querySelectorAll('.notification-item.unread').forEach(item => item.classList.remove('unread'));
-        const badge = document.querySelector('.notification-badge');
-        if (badge) {
-            badge.style.display = 'none';
+        // Use the notification system if available
+        if (window.PharmaFlowNotifications && window.PharmaFlowNotifications.markAllAsRead) {
+            window.PharmaFlowNotifications.markAllAsRead();
+        } else {
+            // Fallback to DOM manipulation
+            document.querySelectorAll('.notification-item.unread').forEach(item => item.classList.remove('unread'));
+            const badge = document.querySelector('.notification-badge');
+            if (badge) {
+                badge.style.display = 'none';
+            }
         }
     }
 
@@ -615,7 +621,13 @@
     }
 
     function showNotification(message, type = 'info') {
-        // Create notification element
+        // Use the notification system toast if available
+        if (window.PharmaFlowNotifications && window.PharmaFlowNotifications.showToast) {
+            window.PharmaFlowNotifications.showToast(message, type);
+            return;
+        }
+
+        // Fallback to global notification
         const notification = document.createElement('div');
         notification.className = `global-notification ${type}`;
         notification.innerHTML = `
@@ -759,6 +771,25 @@
         } else {
             console.warn(`PharmaFlow: module "${moduleId}" does not exist.`);
         }
+    };
+
+    // Global notification helper functions
+    window.PharmaFlowShowNotification = showNotification;
+    
+    // Global function to create a notification
+    window.PharmaFlowCreateNotification = function(data) {
+        if (window.PharmaFlowNotifications && window.PharmaFlowNotifications.createNotification) {
+            return window.PharmaFlowNotifications.createNotification(data);
+        }
+        console.warn('PharmaFlow: Notification system not initialized');
+    };
+
+    // Global function to create an activity
+    window.PharmaFlowCreateActivity = function(data) {
+        if (window.PharmaFlowNotifications && window.PharmaFlowNotifications.createActivity) {
+            return window.PharmaFlowNotifications.createActivity(data);
+        }
+        console.warn('PharmaFlow: Activity system not initialized');
     };
 
     document.addEventListener('DOMContentLoaded', init);

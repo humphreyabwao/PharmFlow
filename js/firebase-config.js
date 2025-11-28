@@ -17,7 +17,8 @@ import {
     orderBy,
     limit,
     Timestamp,
-    onSnapshot
+    onSnapshot,
+    serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 import { getDatabase } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
@@ -68,6 +69,7 @@ export {
     orderBy,
     limit,
     Timestamp,
-    onSnapshot
+    onSnapshot,
+    serverTimestamp
 };
 export default services;
