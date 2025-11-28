@@ -47,6 +47,12 @@
                             </li>
                         </ul>
                     </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-module="all-sales">
+                            <i class="fas fa-chart-line"></i>
+                            <span class="nav-text">All Sales</span>
+                        </a>
+                    </li>
                     <li class="nav-item has-submenu">
                         <a href="#" class="nav-link" data-module="prescription">
                             <i class="fas fa-prescription"></i>
@@ -643,12 +649,22 @@
                                 </div>
                                 <div class="pos-form-row">
                                     <div class="pos-form-group">
-                                        <label for="manualItemPrice">Unit Price (KSH) *</label>
+                                        <label for="manualItemCostPrice">Cost Price (KSH) *</label>
+                                        <input type="number" id="manualItemCostPrice" placeholder="0.00" min="0" step="0.01">
+                                    </div>
+                                    <div class="pos-form-group">
+                                        <label for="manualItemPrice">Selling Price (KSH) *</label>
                                         <input type="number" id="manualItemPrice" placeholder="0.00" min="0" step="0.01">
                                     </div>
+                                </div>
+                                <div class="pos-form-row">
                                     <div class="pos-form-group">
                                         <label for="manualItemQty">Quantity *</label>
                                         <input type="number" id="manualItemQty" value="1" min="1">
+                                    </div>
+                                    <div class="pos-form-group">
+                                        <label>Profit per Unit</label>
+                                        <div class="profit-display" id="manualItemProfit">KSH 0.00</div>
                                     </div>
                                 </div>
                             </div>
@@ -818,6 +834,159 @@
                                     <i class="fas fa-print"></i> Print Receipt
                                 </button>
                                 <button class="btn-close-details" id="btnCloseDetails">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- All Sales Module -->
+                <div class="module-content" id="module-all-sales">
+                    <div class="module-header">
+                        <div class="module-header-content">
+                            <div>
+                                <h1>All Sales</h1>
+                                <p>Complete sales history and analytics</p>
+                            </div>
+                            <div class="sales-header-actions">
+                                <button class="btn-export-sales" id="btnExportAllSales">
+                                    <i class="fas fa-file-export"></i>
+                                    <span>Export</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="module-body">
+                        <!-- All Sales Stats Cards -->
+                        <div class="sales-stats-grid">
+                            <div class="sales-stat-card">
+                                <div class="sales-stat-icon today">
+                                    <i class="fas fa-shopping-cart"></i>
+                                </div>
+                                <div class="sales-stat-info">
+                                    <span class="sales-stat-label">Total Sales</span>
+                                    <h3 class="sales-stat-value" id="allSalesTotalCount">0</h3>
+                                </div>
+                            </div>
+                            <div class="sales-stat-card">
+                                <div class="sales-stat-icon revenue">
+                                    <i class="fas fa-coins"></i>
+                                </div>
+                                <div class="sales-stat-info">
+                                    <span class="sales-stat-label">Total Revenue</span>
+                                    <h3 class="sales-stat-value" id="allSalesRevenueAmount">KSH 0.00</h3>
+                                </div>
+                            </div>
+                            <div class="sales-stat-card">
+                                <div class="sales-stat-icon profit">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
+                                <div class="sales-stat-info">
+                                    <span class="sales-stat-label">Total Profit</span>
+                                    <h3 class="sales-stat-value" id="allSalesProfitAmount">KSH 0.00</h3>
+                                </div>
+                            </div>
+                            <div class="sales-stat-card">
+                                <div class="sales-stat-icon all-sales">
+                                    <i class="fas fa-credit-card"></i>
+                                </div>
+                                <div class="sales-stat-info">
+                                    <span class="sales-stat-label">Cash Sales</span>
+                                    <h3 class="sales-stat-value" id="allCashSalesCount">0</h3>
+                                </div>
+                            </div>
+                            <div class="sales-stat-card">
+                                <div class="sales-stat-icon total-revenue">
+                                    <i class="fas fa-mobile-alt"></i>
+                                </div>
+                                <div class="sales-stat-info">
+                                    <span class="sales-stat-label">M-Pesa Sales</span>
+                                    <h3 class="sales-stat-value" id="allMpesaSalesCount">0</h3>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- All Sales Table Section -->
+                        <div class="sales-table-section">
+                            <div class="sales-table-header">
+                                <div class="sales-table-title">
+                                    <h3><i class="fas fa-history"></i> Sales History</h3>
+                                </div>
+                                <div class="sales-table-filters">
+                                    <div class="sales-search-box">
+                                        <i class="fas fa-search"></i>
+                                        <input type="text" id="allSalesSearchInput" placeholder="Search by receipt, customer, or item...">
+                                    </div>
+                                    <div class="sales-filter-group">
+                                        <select id="allSalesFilterDate" class="sales-filter-select">
+                                            <option value="all">All Time</option>
+                                            <option value="today">Today</option>
+                                            <option value="yesterday">Yesterday</option>
+                                            <option value="week">This Week</option>
+                                            <option value="month">This Month</option>
+                                            <option value="year">This Year</option>
+                                        </select>
+                                        <select id="allSalesFilterPayment" class="sales-filter-select">
+                                            <option value="all">All Payments</option>
+                                            <option value="cash">Cash</option>
+                                            <option value="mpesa">M-Pesa</option>
+                                            <option value="card">Card</option>
+                                        </select>
+                                        <select id="allSalesFilterStatus" class="sales-filter-select">
+                                            <option value="all">All Status</option>
+                                            <option value="completed">Completed</option>
+                                            <option value="approved">Approved</option>
+                                            <option value="pending">Pending</option>
+                                            <option value="cancelled">Cancelled</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="sales-table-wrapper">
+                                <table class="sales-table" id="allSalesTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Receipt #</th>
+                                            <th>Date & Time</th>
+                                            <th>Customer</th>
+                                            <th>Items</th>
+                                            <th>Payment</th>
+                                            <th>Total</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="allSalesTableBody">
+                                        <!-- Sales rows populated dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="sales-table-empty" id="allSalesTableEmpty">
+                                <i class="fas fa-receipt"></i>
+                                <h3>No Sales Found</h3>
+                                <p>Sales records will appear here</p>
+                            </div>
+                            <div class="sales-table-loading" id="allSalesTableLoading">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                <p>Loading sales history...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- View All Sale Details Modal -->
+                    <div class="sales-modal" id="viewAllSaleModal">
+                        <div class="sales-modal-content sale-details-modal">
+                            <div class="sales-modal-header">
+                                <h3><i class="fas fa-receipt"></i> Sale Details</h3>
+                                <button class="sales-modal-close" id="closeViewAllSaleModal">&times;</button>
+                            </div>
+                            <div class="sales-modal-body" id="allSaleDetailsContent">
+                                <!-- Sale details populated dynamically -->
+                            </div>
+                            <div class="sales-modal-footer">
+                                <button class="btn-print-receipt" id="btnPrintAllReceipt">
+                                    <i class="fas fa-print"></i> Print Receipt
+                                </button>
+                                <button class="btn-close-details" id="btnCloseAllDetails">Close</button>
                             </div>
                         </div>
                     </div>
@@ -1189,6 +1358,7 @@
     <!-- Firebase SDK -->
     <script type="module" src="js/firebase-config.js"></script>
     <script type="module" src="js/sales.js"></script>
+    <script type="module" src="js/all-sales.js"></script>
     <script type="module" src="js/pos-module.js"></script>
     <script src="js/admin-panel.js"></script>
     <script src="js/app.js"></script>

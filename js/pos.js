@@ -87,8 +87,10 @@
             manualEntryCancel: document.getElementById('posManualEntryCancel'),
             manualEntryAdd: document.getElementById('posManualEntryAdd'),
             manualItemName: document.getElementById('manualItemName'),
+            manualItemCostPrice: document.getElementById('manualItemCostPrice'),
             manualItemPrice: document.getElementById('manualItemPrice'),
             manualItemQty: document.getElementById('manualItemQty'),
+            manualItemProfit: document.getElementById('manualItemProfit'),
             
             // Scanner Modal
             scannerModal: document.getElementById('posScannerModal'),
@@ -176,6 +178,13 @@
         }
         if (elements.manualEntryAdd) {
             elements.manualEntryAdd.addEventListener('click', handleManualAdd);
+        }
+        // Real-time profit calculation
+        if (elements.manualItemCostPrice) {
+            elements.manualItemCostPrice.addEventListener('input', updateProfitDisplay);
+        }
+        if (elements.manualItemPrice) {
+            elements.manualItemPrice.addEventListener('input', updateProfitDisplay);
         }
 
         // Scanner Modal
@@ -316,7 +325,9 @@
                 id: item.id,
                 name: item.name,
                 dosage: item.dosage || '',
+                costPrice: item.costPrice || 0,
                 price: item.price,
+                profit: item.profit || 0,
                 quantity: quantity,
                 isManual: item.isManual || false
             });
@@ -570,8 +581,13 @@
         if (elements.manualEntryModal) {
             elements.manualEntryModal.classList.add('show');
             elements.manualItemName.value = '';
+            elements.manualItemCostPrice.value = '';
             elements.manualItemPrice.value = '';
             elements.manualItemQty.value = '1';
+            if (elements.manualItemProfit) {
+                elements.manualItemProfit.textContent = 'KSH 0.00';
+                elements.manualItemProfit.className = 'profit-display';
+            }
             elements.manualItemName.focus();
         }
     }
@@ -582,9 +598,29 @@
         }
     }
 
+    function updateProfitDisplay() {
+        const costPrice = parseFloat(elements.manualItemCostPrice?.value) || 0;
+        const sellingPrice = parseFloat(elements.manualItemPrice?.value) || 0;
+        const profit = sellingPrice - costPrice;
+        
+        if (elements.manualItemProfit) {
+            elements.manualItemProfit.textContent = `KSH ${profit.toFixed(2)}`;
+            
+            // Add color based on profit/loss
+            if (profit > 0) {
+                elements.manualItemProfit.className = 'profit-display profit-positive';
+            } else if (profit < 0) {
+                elements.manualItemProfit.className = 'profit-display profit-negative';
+            } else {
+                elements.manualItemProfit.className = 'profit-display';
+            }
+        }
+    }
+
     function handleManualAdd() {
         const name = elements.manualItemName?.value.trim();
-        const price = parseFloat(elements.manualItemPrice?.value);
+        const costPrice = parseFloat(elements.manualItemCostPrice?.value);
+        const sellingPrice = parseFloat(elements.manualItemPrice?.value);
         const qty = parseInt(elements.manualItemQty?.value) || 1;
 
         if (!name) {
@@ -592,16 +628,29 @@
             return;
         }
 
-        if (isNaN(price) || price <= 0) {
-            alert('Please enter a valid price.');
+        if (isNaN(costPrice) || costPrice < 0) {
+            alert('Please enter a valid cost price.');
             return;
+        }
+
+        if (isNaN(sellingPrice) || sellingPrice <= 0) {
+            alert('Please enter a valid selling price.');
+            return;
+        }
+
+        if (sellingPrice < costPrice) {
+            if (!confirm('Selling price is less than cost price. You will make a loss. Continue anyway?')) {
+                return;
+            }
         }
 
         const manualItem = {
             id: `manual-${Date.now()}`,
             name: name,
             dosage: '',
-            price: price,
+            costPrice: costPrice,
+            price: sellingPrice,
+            profit: sellingPrice - costPrice,
             isManual: true
         };
 
