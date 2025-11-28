@@ -369,11 +369,6 @@ button {
     font-size: 18px;
 }
 
-/* Theme Toggle */
-.theme-toggle.light-mode i::before {
-    content: "\f185"; /* sun icon */
-}
-
 /* Notification Badge */
 .notification-badge {
     position: absolute;
