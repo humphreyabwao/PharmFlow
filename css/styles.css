@@ -6705,16 +6705,29 @@ button {
     color: white;
 }
 
-/* Responsive */
+/* Responsive Design */
 @media screen and (max-width: 1400px) {
     .prescription-container {
         grid-template-columns: 1fr 400px;
+        gap: 20px;
     }
 }
 
 @media screen and (max-width: 1200px) {
     .prescription-container {
-        grid-template-columns: 1fr 380px;
+        grid-template-columns: 1fr 360px;
+        gap: 18px;
+    }
+
+    .prescription-info-section,
+    .rx-medication-section,
+    .rx-meds-list-section,
+    .prescription-preview-section {
+        padding: 20px;
+    }
+
+    .prescription-form-grid {
+        gap: 14px;
     }
 }
 
@@ -6738,20 +6751,54 @@ button {
         width: 100%;
         justify-content: center;
     }
+
+    .prescription-right {
+        order: -1;
+    }
+
+    .rx-meds-table {
+        font-size: 13px;
+    }
+
+    .rx-meds-table thead th,
+    .rx-meds-table tbody td {
+        padding: 10px 8px;
+    }
 }
 
 @media screen and (max-width: 768px) {
+    .prescription-info-section,
+    .rx-medication-section,
+    .rx-meds-list-section,
+    .prescription-preview-section {
+        padding: 16px;
+    }
+
+    .prescription-info-section h3,
+    .rx-section-title h3,
+    .prescription-preview-section h3 {
+        font-size: 16px;
+    }
+
     .prescription-actions {
         grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .rx-action-btn {
+        font-size: 14px;
+        padding: 12px 16px;
     }
 
     .rx-modal-container {
         width: 95%;
         max-width: none;
+        margin: 10px;
     }
 
     .rx-modal-grid {
         grid-template-columns: 1fr;
+        gap: 14px;
     }
 
     .rx-modal-header,
@@ -6762,10 +6809,228 @@ button {
 
     .rx-modal-footer {
         flex-direction: column;
+        gap: 10px;
     }
 
     .rx-btn {
         width: 100%;
         justify-content: center;
+    }
+
+    /* Table responsive - make it scrollable */
+    .rx-table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .rx-meds-table {
+        min-width: 600px;
+    }
+
+    .prescription-form-grid .form-group label {
+        font-size: 13px;
+    }
+
+    .prescription-form-grid .form-group input,
+    .prescription-form-grid .form-group select,
+    .prescription-form-grid .form-group textarea {
+        font-size: 14px;
+        padding: 10px;
+    }
+}
+
+@media screen and (max-width: 576px) {
+    .prescription-container {
+        gap: 16px;
+    }
+
+    .prescription-info-section,
+    .rx-medication-section,
+    .rx-meds-list-section,
+    .prescription-preview-section {
+        padding: 14px;
+        border-radius: 8px;
+    }
+
+    .prescription-form-grid {
+        gap: 12px;
+    }
+
+    .rx-search-input {
+        font-size: 14px;
+        padding: 12px 12px 12px 40px;
+    }
+
+    .rx-meds-header {
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-start;
+    }
+
+    .rx-btn-clear-all {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .rx-meds-count {
+        font-size: 12px;
+        padding: 4px 10px;
+    }
+
+    .rx-empty-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .prescription-actions {
+        gap: 10px;
+    }
+
+    .rx-action-btn {
+        font-size: 13px;
+        padding: 10px 14px;
+    }
+
+    .rx-preview-content {
+        padding: 14px;
+    }
+
+    .prescription-preview-patient,
+    .prescription-preview-diagnosis,
+    .prescription-preview-notes,
+    .prescription-preview-doctor {
+        padding: 12px;
+    }
+
+    /* Modal adjustments */
+    .rx-modal-container {
+        margin: 5px;
+        max-height: calc(100vh - 10px);
+    }
+
+    .rx-modal-header h3 {
+        font-size: 16px;
+    }
+
+    .rx-modal-body {
+        padding: 12px;
+    }
+
+    .rx-form-group label {
+        font-size: 13px;
+    }
+
+    .rx-form-group input,
+    .rx-form-group select,
+    .rx-form-group textarea {
+        font-size: 14px;
+    }
+}
+
+@media screen and (max-width: 400px) {
+    .prescription-info-section,
+    .rx-medication-section,
+    .rx-meds-list-section,
+    .prescription-preview-section {
+        padding: 12px;
+    }
+
+    .prescription-info-section h3,
+    .rx-section-title h3 {
+        font-size: 15px;
+    }
+
+    .rx-action-btn {
+        font-size: 12px;
+        padding: 9px 12px;
+    }
+
+    .rx-action-btn i {
+        font-size: 14px;
+    }
+
+    .prescription-form-grid .form-group input,
+    .prescription-form-grid .form-group select,
+    .prescription-form-grid .form-group textarea {
+        font-size: 13px;
+        padding: 9px;
+    }
+
+    .prescription-search-item {
+        padding: 10px 12px;
+    }
+
+    .prescription-search-item-name {
+        font-size: 13px;
+    }
+
+    .prescription-search-item-details {
+        font-size: 11px;
+    }
+
+    .prescription-search-item-stock {
+        font-size: 11px;
+        padding: 4px 8px;
+    }
+}
+
+/* Landscape mobile optimization */
+@media screen and (max-height: 600px) and (orientation: landscape) {
+    .prescription-container {
+        gap: 16px;
+    }
+
+    .prescription-info-section,
+    .rx-medication-section,
+    .rx-meds-list-section,
+    .prescription-preview-section {
+        padding: 16px;
+    }
+
+    .rx-modal-container {
+        max-height: 95vh;
+        overflow-y: auto;
+    }
+
+    .rx-modal-body {
+        max-height: 50vh;
+        overflow-y: auto;
+    }
+}
+
+/* Tablet specific optimizations */
+@media screen and (min-width: 768px) and (max-width: 992px) {
+    .prescription-form-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .prescription-actions {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .rx-meds-table {
+        font-size: 14px;
+    }
+}
+
+/* Large tablet/small desktop */
+@media screen and (min-width: 992px) and (max-width: 1200px) {
+    .prescription-container {
+        grid-template-columns: 1.5fr 1fr;
+    }
+
+    .prescription-form-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Print media queries for thermal receipt */
+@media print {
+    .prescription-container,
+    .prescription-left,
+    .prescription-right,
+    .prescription-preview-section,
+    .prescription-actions {
+        display: none !important;
     }
 }
