@@ -1735,14 +1735,131 @@
                 <!-- Supplier Module -->
                 <div class="module-content" id="module-orders-supplier">
                     <div class="module-header">
-                        <h1>Supplier</h1>
-                        <p>Manage suppliers and vendor information</p>
+                        <div>
+                            <h1><i class="fas fa-truck"></i> Supplier Management</h1>
+                            <p>Add and manage supplier information</p>
+                        </div>
+                        <div class="module-header-actions">
+                            <button class="btn-module-action btn-create-order" data-module="orders-create">
+                                <i class="fas fa-plus-circle"></i> Create Order
+                            </button>
+                            <button class="btn-module-action btn-view-orders" data-module="orders-view">
+                                <i class="fas fa-list"></i> View Orders
+                            </button>
+                        </div>
                     </div>
                     <div class="module-body">
-                        <div class="placeholder-content">
-                            <i class="fas fa-truck"></i>
-                            <h2>Supplier Module</h2>
-                            <p>This module is ready for future implementation.</p>
+                        <!-- Add Supplier Form -->
+                        <div class="supplier-form-section">
+                            <h2 class="section-title">Add New Supplier</h2>
+                            <form id="addSupplierForm" class="supplier-form">
+                                <div class="supplier-form-grid">
+                                    <div class="form-field">
+                                        <label for="supplierName">Supplier Name *</label>
+                                        <input type="text" id="supplierName" placeholder="Enter supplier name" required>
+                                    </div>
+                                    <div class="form-field">
+                                        <label for="supplierContact">Contact Person</label>
+                                        <input type="text" id="supplierContact" placeholder="Contact person name">
+                                    </div>
+                                    <div class="form-field">
+                                        <label for="supplierPhone">Phone Number *</label>
+                                        <input type="tel" id="supplierPhone" placeholder="+254 700 000000" required>
+                                    </div>
+                                    <div class="form-field">
+                                        <label for="supplierEmail">Email Address</label>
+                                        <input type="email" id="supplierEmail" placeholder="supplier@example.com">
+                                    </div>
+                                    <div class="form-field full-width">
+                                        <label for="supplierAddress">Physical Address</label>
+                                        <input type="text" id="supplierAddress" placeholder="Street, City, Country">
+                                    </div>
+                                    <div class="form-field">
+                                        <label for="supplierCategory">Category</label>
+                                        <select id="supplierCategory">
+                                            <option value="">Select category</option>
+                                            <option value="pharmaceuticals">Pharmaceuticals</option>
+                                            <option value="medical-supplies">Medical Supplies</option>
+                                            <option value="equipment">Equipment</option>
+                                            <option value="wholesale">Wholesale</option>
+                                            <option value="other">Other</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-field">
+                                        <label for="supplierStatus">Status</label>
+                                        <select id="supplierStatus">
+                                            <option value="active">Active</option>
+                                            <option value="inactive">Inactive</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-actions">
+                                    <button type="submit" class="btn-primary">
+                                        <i class="fas fa-plus"></i> Add Supplier
+                                    </button>
+                                    <button type="reset" class="btn-secondary">
+                                        <i class="fas fa-redo"></i> Reset
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Suppliers Table -->
+                        <div class="supplier-table-section">
+                            <div class="table-header">
+                                <div class="table-header-left">
+                                    <h2 class="section-title">Suppliers List</h2>
+                                    <div class="supplier-stats-card">
+                                        <i class="fas fa-truck"></i>
+                                        <div class="stat-info">
+                                            <span class="stat-label">Total Suppliers</span>
+                                            <span class="stat-value" id="totalSuppliersCount">0</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="table-actions">
+                                    <div class="search-box">
+                                        <i class="fas fa-search"></i>
+                                        <input type="text" id="supplierSearchInput" placeholder="Search suppliers...">
+                                    </div>
+                                    <button class="btn-refresh" id="refreshSuppliersBtn">
+                                        <i class="fas fa-sync-alt"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="supplier-table-wrapper">
+                                <!-- Loading State -->
+                                <div class="table-loading" id="supplierTableLoading">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                    <p>Loading suppliers...</p>
+                                </div>
+
+                                <!-- Empty State -->
+                                <div class="table-empty" id="supplierTableEmpty" style="display: none;">
+                                    <i class="fas fa-truck"></i>
+                                    <h3>No Suppliers Added</h3>
+                                    <p>Add your first supplier using the form above</p>
+                                </div>
+
+                                <!-- Suppliers Table -->
+                                <table class="supplier-table" id="supplierTable" style="display: none;">
+                                    <thead>
+                                        <tr>
+                                            <th>Supplier Name</th>
+                                            <th>Contact Person</th>
+                                            <th>Phone</th>
+                                            <th>Email</th>
+                                            <th>Category</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="supplierTableBody">
+                                        <!-- Populated dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -2417,6 +2534,7 @@
     <script type="module" src="js/prescription.js"></script>
     <script type="module" src="js/inventory.js"></script>
     <script type="module" src="js/inventory-view.js"></script>
+    <script type="module" src="js/supplier.js"></script>
     <script src="js/admin-panel.js"></script>
     <script src="js/app.js"></script>
 </body>
