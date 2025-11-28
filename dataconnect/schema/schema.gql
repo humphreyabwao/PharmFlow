@@ -1,0 +1,43 @@
+type Patient @table {
+  firstName: String!
+  lastName: String!
+  dateOfBirth: Date!
+  contactNumber: String!
+  address: String
+  email: String
+  allergies: [String]
+}
+
+type Medication @table {
+  name: String!
+  dosage: String!
+  manufacturer: String!
+  stockQuantity: Int!
+  reorderPoint: Int!
+  description: String
+  unitPrice: Float
+  expirationDate: Date
+}
+
+type Prescription @table {
+  prescriptionDate: Timestamp!
+  status: String!
+  patient: Patient!
+  prescribingDoctor: String
+  notes: String
+}
+
+type PrescriptionItem @table(key: ["prescription", "medication"]) {
+  prescription: Prescription!
+  medication: Medication!
+  quantity: Int!
+  dosageInstructions: String!
+}
+
+type Supplier @table {
+  name: String!
+  contactPerson: String!
+  contactNumber: String!
+  address: String
+  email: String
+}

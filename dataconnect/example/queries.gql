@@ -1,0 +1,35 @@
+mutation AddNewMedication($description: String, $dosage: String!, $expirationDate: Date, $manufacturer: String!, $name: String!, $reorderPoint: Int!, $stockQuantity: Int!, $unitPrice: Float) @auth(level: USER) {
+  medication_insert(data: {description: $description, dosage: $dosage, expirationDate: $expirationDate, manufacturer: $manufacturer, name: $name, reorderPoint: $reorderPoint, stockQuantity: $stockQuantity, unitPrice: $unitPrice})
+}
+
+query ListMedications @auth(level: USER) {
+  medications {
+    id
+    name
+    dosage
+    manufacturer
+    stockQuantity
+    reorderPoint
+    unitPrice
+    expirationDate
+    description
+  }
+}
+
+mutation UpdateStockQuantity($id: UUID!, $stockQuantity: Int!) @auth(level: USER) {
+  medication_update(id: $id, data: {stockQuantity: $stockQuantity})
+}
+
+query FindMedication($id: UUID!) @auth(level: USER) {
+  medication(id: $id) {
+    id
+    description
+    dosage
+    expirationDate
+    manufacturer
+    name
+    reorderPoint
+    stockQuantity
+    unitPrice
+  }
+}

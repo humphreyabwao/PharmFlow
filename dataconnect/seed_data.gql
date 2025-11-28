@@ -1,0 +1,90 @@
+mutation CreateSeedData @transaction @auth(level: PUBLIC, insecureReason: "This operation is used to seed the database with example data. It is safe to expose to the public.") {
+  supplier_insertMany(data: [
+    {
+      id: "550e8400-e29b-41d4-a716-446655440000",
+      name: "Acme Pharmaceuticals",
+      contactPerson: "John Doe",
+      contactNumber: "123-456-7890",
+      address: "123 Main St",
+      email: "john.doe@acme.com"
+    },
+    {
+      id: "550e8400-e29b-41d4-a716-446655440001",
+      name: "Globex Corporation",
+      contactPerson: "Jane Smith",
+      contactNumber: "987-654-3210",
+      address: "456 Elm St",
+      email: "jane.smith@globex.com"
+    }
+  ])
+  medication_insertMany(data: [
+    {
+      id: "550e8400-e29b-41d4-a716-446655440002",
+      name: "Amoxicillin",
+      dosage: "250mg",
+      manufacturer: "Acme Pharmaceuticals",
+      stockQuantity: 100,
+      reorderPoint: 20,
+      unitPrice: 5.50
+    },
+    {
+      id: "550e8400-e29b-41d4-a716-446655440003",
+      name: "Ibuprofen",
+      dosage: "200mg",
+      manufacturer: "Globex Corporation",
+      stockQuantity: 150,
+      reorderPoint: 30,
+      unitPrice: 3.75
+    }
+  ])
+  patient_insertMany(data: [
+    {
+      id: "550e8400-e29b-41d4-a716-446655440004",
+      firstName: "Alice",
+      lastName: "Johnson",
+      dateOfBirth: "1990-05-15",
+      contactNumber: "555-123-4567",
+      address: "789 Oak St",
+      email: "alice.johnson@example.com"
+    },
+    {
+      id: "550e8400-e29b-41d4-a716-446655440005",
+      firstName: "Bob",
+      lastName: "Williams",
+      dateOfBirth: "1985-12-20",
+      contactNumber: "555-987-6543",
+      address: "321 Pine St",
+      email: "bob.williams@example.com"
+    }
+  ])
+  prescription_insertMany(data: [
+    {
+      id: "550e8400-e29b-41d4-a716-446655440006",
+      patientId: "550e8400-e29b-41d4-a716-446655440004",
+      prescriptionDate: "2024-01-20T10:00:00Z",
+      prescribingDoctor: "Dr. Smith",
+      status: "Active"
+    },
+    {
+      id: "550e8400-e29b-41d4-a716-446655440007",
+      patientId: "550e8400-e29b-41d4-a716-446655440005",
+      prescriptionDate: "2024-02-10T14:30:00Z",
+      prescribingDoctor: "Dr. Jones",
+      status: "Inactive"
+    }
+  ])
+  prescriptionItem_insertMany(data: [
+    {
+      prescriptionId: "550e8400-e29b-41d4-a716-446655440006",
+      medicationId: "550e8400-e29b-41d4-a716-446655440002",
+      dosageInstructions: "Take one tablet daily",
+      quantity: 30
+    },
+    {
+      prescriptionId: "550e8400-e29b-41d4-a716-446655440007",
+      medicationId: "550e8400-e29b-41d4-a716-446655440003",
+      dosageInstructions: "Take two tablets every 6 hours",
+      quantity: 60
+    }
+  ])
+}
