@@ -340,8 +340,8 @@
                     <!-- Profile -->
                     <div class="profile-wrapper">
                         <button class="profile-btn" id="profileBtn">
-                            <div class="profile-avatar">
-                                <i class="fas fa-user"></i>
+                            <div class="profile-avatar has-image">
+                                <img src="https://ui-avatars.com/api/?name=Admin&background=667eea&color=fff&size=128" alt="Profile">
                             </div>
                             <span class="profile-name">Admin</span>
                             <i class="fas fa-chevron-down"></i>
@@ -349,8 +349,8 @@
                         <div class="profile-dropdown" id="profileDropdown">
                             <div class="dropdown-header">
                                 <div class="profile-info">
-                                    <div class="profile-avatar large">
-                                        <i class="fas fa-user"></i>
+                                    <div class="profile-avatar large has-image">
+                                        <img src="https://ui-avatars.com/api/?name=Admin&background=667eea&color=fff&size=128" alt="Profile">
                                     </div>
                                     <div>
                                         <h4>Administrator</h4>
@@ -4235,6 +4235,7 @@
                                                 <button class="set-avatar-edit">
                                                     <i class="fas fa-camera"></i>
                                                 </button>
+                                                <input type="file" id="setAvatarInput" accept="image/*" hidden>
                                             </div>
                                             <div class="set-profile-info">
                                                 <h3 id="setProfileName">Administrator</h3>
@@ -5123,7 +5124,7 @@
     <script type="module" src="js/manage-wholesale.js"></script>
     <script type="module" src="js/accounts.js"></script>
     <script type="module" src="js/reports.js"></script>
-    <script src="js/settings.js"></script>
+    <script type="module" src="js/settings.js"></script>
     <script src="js/admin-panel.js"></script>
     <script src="js/app.js"></script>
 </body>

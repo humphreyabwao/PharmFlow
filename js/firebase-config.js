@@ -22,6 +22,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 import { getDatabase } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+import { getStorage } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-storage.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyB88Ttg2c9HMn1k3Me1KHtuTscYKUP4Wys",
@@ -46,8 +47,9 @@ try {
 const db = getFirestore(app);
 const rtdb = getDatabase(app);
 const auth = getAuth(app);
+const storage = getStorage(app);
 
-const services = { app, analytics, db, rtdb, auth };
+const services = { app, analytics, db, rtdb, auth, storage };
 
 window.PharmaFlowFirebase = services;
 
@@ -57,6 +59,7 @@ export {
     db, 
     rtdb, 
     auth,
+    storage,
     collection,
     doc,
     addDoc,
