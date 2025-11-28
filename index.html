@@ -343,6 +343,36 @@
                         </div>
                     </div>
                     
+                    <!-- Messages -->
+                    <div class="message-wrapper">
+                        <button class="topbar-btn message-btn" id="messageBtn" title="Messages">
+                            <i class="fas fa-envelope"></i>
+                            <span class="message-badge" id="messageBadge" style="display: none;">0</span>
+                        </button>
+                        <div class="message-dropdown" id="messageDropdown">
+                            <div class="dropdown-header">
+                                <h4>Messages</h4>
+                                <div class="message-header-actions">
+                                    <button class="msg-action-btn" id="clearMessagesBtn" title="Clear All">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                    <button class="msg-action-btn msg-compose-btn" id="composeMessageBtn" title="Compose">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="dropdown-body" id="messageList">
+                                <div class="message-empty">
+                                    <i class="fas fa-comments"></i>
+                                    <p>No messages yet</p>
+                                </div>
+                            </div>
+                            <div class="dropdown-footer">
+                                <a href="#" id="viewAllMessages">View all messages</a>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <!-- Profile -->
                     <div class="profile-wrapper">
                         <button class="profile-btn" id="profileBtn">
@@ -5598,8 +5628,32 @@
         </div>
     </div>
 
+    <!-- Compose Message Modal -->
+    <div class="msg-modal-overlay" id="composeMessageModal">
+        <div class="msg-modal">
+            <div class="msg-modal-header">
+                <h3><i class="fas fa-paper-plane"></i> Compose Message</h3>
+                <button class="msg-modal-close" id="closeComposeModal">&times;</button>
+            </div>
+            <div class="msg-modal-body">
+                <div class="msg-form-group">
+                    <label for="messageContent">Message</label>
+                    <textarea id="messageContent" rows="4" placeholder="Type your message here..." maxlength="500"></textarea>
+                    <span class="msg-char-count"><span id="charCount">0</span>/500</span>
+                </div>
+            </div>
+            <div class="msg-modal-footer">
+                <button class="msg-btn msg-btn-cancel" id="cancelComposeBtn">Cancel</button>
+                <button class="msg-btn msg-btn-send" id="sendMessageBtn">
+                    <i class="fas fa-paper-plane"></i> Send to All
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Firebase SDK -->
     <script type="module" src="js/firebase-config.js"></script>
+    <script type="module" src="js/messages.js"></script>
     <script type="module" src="js/notifications.js"></script>
     <script type="module" src="js/all-activities.js"></script>
     <script type="module" src="js/dashboard.js"></script>
