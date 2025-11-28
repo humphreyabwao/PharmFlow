@@ -2224,14 +2224,254 @@
                 <!-- Create Wholesale Module -->
                 <div class="module-content" id="module-wholesale-create">
                     <div class="module-header">
-                        <h1>Create Wholesale</h1>
-                        <p>Create a new wholesale order</p>
+                        <div>
+                            <h1>Create Wholesale Sale</h1>
+                            <p>Process bulk orders for wholesale customers</p>
+                        </div>
+                        <div class="module-header-actions">
+                            <button class="btn-module-action" onclick="showModule('module-wholesale-manage')" style="background-color: #3b82f6; color: white;">
+                                <i class="fas fa-list"></i> View Sales
+                            </button>
+                        </div>
                     </div>
                     <div class="module-body">
-                        <div class="placeholder-content">
-                            <i class="fas fa-plus"></i>
-                            <h2>Create Wholesale Module</h2>
-                            <p>This module is ready for future implementation.</p>
+                        <div class="ws-container">
+                            <!-- Left Panel - Product Selection -->
+                            <div class="ws-left-panel">
+                                <!-- Customer Selection -->
+                                <div class="ws-section">
+                                    <div class="ws-section-header">
+                                        <h3><i class="fas fa-user"></i> Customer</h3>
+                                        <button class="ws-add-btn" onclick="openAddCustomerModal()">
+                                            <i class="fas fa-plus"></i> New
+                                        </button>
+                                    </div>
+                                    <div class="ws-customer-search">
+                                        <div class="ws-search-box">
+                                            <i class="fas fa-search"></i>
+                                            <input type="text" id="wsCustomerSearch" placeholder="Search customer by name or phone...">
+                                        </div>
+                                        <div class="ws-customer-results" id="wsCustomerResults"></div>
+                                    </div>
+                                    <div class="ws-selected-customer" id="wsSelectedCustomer">
+                                        <p class="ws-no-customer">No customer selected (Walk-in)</p>
+                                    </div>
+                                </div>
+
+                                <!-- Product Search -->
+                                <div class="ws-section">
+                                    <div class="ws-section-header">
+                                        <h3><i class="fas fa-box"></i> Add Products</h3>
+                                        <button class="ws-add-btn" onclick="openManualProductModal()">
+                                            <i class="fas fa-plus"></i> Manual
+                                        </button>
+                                    </div>
+                                    <div class="ws-product-search">
+                                        <div class="ws-search-box">
+                                            <i class="fas fa-search"></i>
+                                            <input type="text" id="wsProductSearch" placeholder="Search products by name or code...">
+                                        </div>
+                                        <div class="ws-product-results" id="wsProductResults"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Quick Stats -->
+                                <div class="ws-quick-stats">
+                                    <div class="ws-quick-stat">
+                                        <span class="ws-qs-label">Items in Cart</span>
+                                        <span class="ws-qs-value" id="wsCartCount">0</span>
+                                    </div>
+                                    <div class="ws-quick-stat">
+                                        <span class="ws-qs-label">Total Quantity</span>
+                                        <span class="ws-qs-value" id="wsTotalQty">0</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Right Panel - Cart & Checkout -->
+                            <div class="ws-right-panel">
+                                <!-- Cart Section -->
+                                <div class="ws-cart-section">
+                                    <div class="ws-cart-header">
+                                        <h3><i class="fas fa-shopping-cart"></i> Cart</h3>
+                                        <button class="ws-clear-btn" onclick="clearWholesaleCart()">
+                                            <i class="fas fa-trash"></i> Clear
+                                        </button>
+                                    </div>
+                                    <div class="ws-cart-table-container">
+                                        <table class="ws-cart-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Product</th>
+                                                    <th>Price</th>
+                                                    <th>Qty</th>
+                                                    <th>Total</th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="wsCartBody">
+                                                <tr class="ws-cart-empty">
+                                                    <td colspan="5">
+                                                        <i class="fas fa-shopping-basket"></i>
+                                                        <p>Cart is empty</p>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <!-- Checkout Section -->
+                                <div class="ws-checkout-section">
+                                    <div class="ws-totals">
+                                        <div class="ws-total-row">
+                                            <span>Subtotal</span>
+                                            <span id="wsSubtotal">Ksh 0.00</span>
+                                        </div>
+                                        <div class="ws-total-row ws-editable">
+                                            <span>Discount</span>
+                                            <div class="ws-discount-input">
+                                                <span>Ksh</span>
+                                                <input type="number" id="wsDiscountAmount" value="0" min="0" step="1">
+                                            </div>
+                                        </div>
+                                        <div class="ws-total-row ws-editable">
+                                            <span>Tax (VAT)</span>
+                                            <div class="ws-tax-input">
+                                                <input type="number" id="wsTaxPercent" value="0" min="0" max="100" step="0.1">
+                                                <span>%</span>
+                                                <span class="ws-tax-amount" id="wsTaxAmount">+ Ksh 0.00</span>
+                                            </div>
+                                        </div>
+                                        <div class="ws-total-row ws-grand-total">
+                                            <span>Grand Total</span>
+                                            <span id="wsGrandTotal">Ksh 0.00</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Payment Method -->
+                                    <div class="ws-payment-section">
+                                        <label>Payment Method</label>
+                                        <div class="ws-payment-options">
+                                            <label class="ws-payment-option">
+                                                <input type="radio" name="wsPayment" value="cash" checked>
+                                                <span><i class="fas fa-money-bill-wave"></i> Cash</span>
+                                            </label>
+                                            <label class="ws-payment-option">
+                                                <input type="radio" name="wsPayment" value="mpesa">
+                                                <span><i class="fas fa-mobile-alt"></i> M-Pesa</span>
+                                            </label>
+                                            <label class="ws-payment-option">
+                                                <input type="radio" name="wsPayment" value="bank">
+                                                <span><i class="fas fa-university"></i> Bank</span>
+                                            </label>
+                                            <label class="ws-payment-option">
+                                                <input type="radio" name="wsPayment" value="credit">
+                                                <span><i class="fas fa-credit-card"></i> Credit</span>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <!-- Notes -->
+                                    <div class="ws-notes-section">
+                                        <label>Order Notes</label>
+                                        <textarea id="wsOrderNotes" placeholder="Add any notes for this order..."></textarea>
+                                    </div>
+
+                                    <!-- Action Buttons -->
+                                    <div class="ws-action-buttons-grid">
+                                        <button class="ws-btn-secondary" onclick="saveWholesaleDraft()">
+                                            <i class="fas fa-save"></i> Save Draft
+                                        </button>
+                                        <button class="ws-btn-hold" onclick="holdWholesaleOrder()">
+                                            <i class="fas fa-pause-circle"></i> Hold Order
+                                        </button>
+                                        <button class="ws-btn-primary" onclick="processWholesaleSale()">
+                                            <i class="fas fa-check-circle"></i> Process Sale
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Add Customer Quick Modal -->
+                    <div class="ws-modal-overlay" id="wsAddCustomerModal">
+                        <div class="ws-modal">
+                            <div class="ws-modal-header">
+                                <h3><i class="fas fa-user-plus"></i> Quick Add Customer</h3>
+                                <button class="ws-modal-close" onclick="closeAddCustomerModal()">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <div class="ws-modal-body">
+                                <form id="wsQuickCustomerForm">
+                                    <div class="ws-form-grid">
+                                        <div class="ws-form-field">
+                                            <label>Customer Name *</label>
+                                            <input type="text" id="wsNewCustomerName" required>
+                                        </div>
+                                        <div class="ws-form-field">
+                                            <label>Phone Number *</label>
+                                            <input type="tel" id="wsNewCustomerPhone" required>
+                                        </div>
+                                        <div class="ws-form-field">
+                                            <label>Email</label>
+                                            <input type="email" id="wsNewCustomerEmail">
+                                        </div>
+                                        <div class="ws-form-field">
+                                            <label>Business Name</label>
+                                            <input type="text" id="wsNewCustomerBusiness">
+                                        </div>
+                                        <div class="ws-form-field full-width">
+                                            <label>Address</label>
+                                            <input type="text" id="wsNewCustomerAddress">
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="ws-modal-footer">
+                                <button class="ws-btn-secondary" onclick="closeAddCustomerModal()">Cancel</button>
+                                <button class="ws-btn-primary" onclick="saveQuickCustomer()">
+                                    <i class="fas fa-save"></i> Save Customer
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Manual Product Modal -->
+                    <div class="ws-modal-overlay" id="wsManualProductModal">
+                        <div class="ws-modal">
+                            <div class="ws-modal-header">
+                                <h3><i class="fas fa-plus-circle"></i> Add Manual Product</h3>
+                                <button class="ws-modal-close" onclick="closeManualProductModal()">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <div class="ws-modal-body">
+                                <form id="wsManualProductForm">
+                                    <div class="ws-form-grid">
+                                        <div class="ws-form-field full-width">
+                                            <label>Product Name *</label>
+                                            <input type="text" id="wsManualProductName" required>
+                                        </div>
+                                        <div class="ws-form-field">
+                                            <label>Unit Price (Ksh) *</label>
+                                            <input type="number" id="wsManualProductPrice" min="0" step="0.01" required>
+                                        </div>
+                                        <div class="ws-form-field">
+                                            <label>Quantity *</label>
+                                            <input type="number" id="wsManualProductQty" min="1" value="1" required>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="ws-modal-footer">
+                                <button class="ws-btn-secondary" onclick="closeManualProductModal()">Cancel</button>
+                                <button class="ws-btn-primary" onclick="addManualProduct()">
+                                    <i class="fas fa-cart-plus"></i> Add to Cart
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -3418,6 +3658,7 @@
     <script type="module" src="js/manage-customers.js"></script>
     <script type="module" src="js/expense.js"></script>
     <script type="module" src="js/manage-expenses.js"></script>
+    <script type="module" src="js/wholesale.js"></script>
     <script src="js/admin-panel.js"></script>
     <script src="js/app.js"></script>
 </body>
